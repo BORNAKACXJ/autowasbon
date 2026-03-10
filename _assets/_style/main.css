@@ -799,6 +799,7 @@ header {
 .wasbon-wens-btn {
 	padding: 15px 20px;
 	
+	
 	background: #fff;
 	border-radius: 12px;
 	font-size: 16px;
@@ -809,13 +810,18 @@ header {
 }
 
 .wasbon-wens-btn {
-	width: 100%;
+	--wens-scale: 1;
+	width: unset;
+	margin: 4px;
 	height: auto;
 	aspect-ratio: 3/1;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	gap: 12px;
+	transform: scale(var(--wens-scale));
+	background-size: 50%;
+	background-position: center;
 }
 
 .wasbon-wens-image {
@@ -824,11 +830,12 @@ header {
 }
 
 .wasbon-value-btn:hover,
-.wasbon-wens-btn:hover,
 .wasbon-theme-btn:hover {
-	
 	transform: rotate(-2deg);
-	
+}
+
+.wasbon-wens-btn:hover {
+	transform: scale(var(--wens-scale)) rotate(-2deg);
 }
 
 .wasbon-value-btn.selected,

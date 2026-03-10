@@ -9,6 +9,7 @@ import { initFlowAnimations } from './flow-animations.js';
 import { initWensen } from './maakbon-wensen.js';
 import { initSop } from './maakbon-sop.js';
 import { initSteps } from './maakbon-steps.js';
+import { initFlowValidation } from './flow-validation.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
 	initLottieClickFeedback();
@@ -17,9 +18,23 @@ document.addEventListener('DOMContentLoaded', async function () {
 	window.editStep = (step) => state.editStep(step);
 	initFlowAnimations(state);
 
+	const flowValidation = initFlowValidation();
+
 	document.getElementById('btnStart').addEventListener('click', () => state.goNext());
 	document.querySelectorAll('.step-volgende-btn').forEach(btn => btn.addEventListener('click', () => state.goNext()));
-	document.getElementById('btnAfrekenen').addEventListener('click', () => state.goNext());
+
+	document.getElementById('btnAfrekenen').addEventListener('click', async () => {
+		const valid = await flowValidation.revalidate();
+		if (valid) state.goNext();
+	});
+
+	document.getElementById('btnMaakFactuur')?.addEventListener('click', async () => {
+		const valid = await flowValidation.revalidate();
+		if (valid) {
+			// Factuur form valid; go to success step (submit/API call can be added here)
+			state.showSection(9);
+		}
+	});
 
 	// Receiver name: sync to hidden field, update preview on card, remove readonly on interaction (prevent autofill)
 	const receiverInput = document.getElementById('receiver_name');

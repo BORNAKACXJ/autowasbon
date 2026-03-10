@@ -39,30 +39,30 @@ export const checkpointConfig = {
     //{ z: -88, duration: 10, easing: "linear", pause: 0 },
     
     // -86 → -106: duration 8s, easing easeInOut, pause 0.5s
-    { z: -109, duration: 16, easing: "linear", pause: 2 },
+    { z: -109, duration: 13, easing: "linear", pause: 2 },
     
     // -109 → -141: duration 4s, easing easeInOut, pause 0.5s
-    { z: -191, duration: 12, easing: "linear", pause: 1 },
+    { z: -191, duration: 9, easing: "linear", pause: 0.8 },
     
     // -141 → -200: duration 5s, easing easeInOut, pause 0.5s
     //{ z: -220, duration: 4, easing: "linear", pause: 0 },
     // -200 → -300: duration 8s, easing easeInOut
-    { z: -260, duration: 10, easing: "linear", pause: 0.5 }
+    { z: -260, duration: 6, easing: "linear", pause: 0.2 }
   ],
   
   // Points Mobile: Camera movement points for mobile devices (animated transitions)
   // Format: from z → to z: duration, easing, pause
   pointsMobile: [
 
-    { z: -109, duration: 16, easing: "linear", pause: 2 },
+    { z: -109, duration: 13, easing: "linear", pause: 2 },
     
     // -109 → -141: duration 4s, easing easeInOut, pause 0.5s
-    { z: -182, duration: 12, easing: "linear", pause: 1 },
+    { z: -182, duration: 9, easing: "linear", pause: 0.8 },
     
     // -141 → -200: duration 5s, easing easeInOut, pause 0.5s
     //{ z: -220, duration: 4, easing: "linear", pause: 0 },
     // -200 → -300: duration 8s, easing easeInOut
-    { z: -260, duration: 10, easing: "linear", pause: 0.5 }
+    { z: -260, duration: 6, easing: "linear", pause: 0.2 }
     // 0 → -56: duration 2s, easing easeInOut, pause 0.2s
     // { z: -56, duration: 2, easing: "easeInOut", pause: 0.2 },
     

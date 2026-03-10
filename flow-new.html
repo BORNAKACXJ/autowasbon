@@ -22,6 +22,34 @@
 			height:100%;
 			padding-bottom:32px;
 		}
+		/* Inline validation errors under inputs (Just-validate) */
+		.flow-field-error {
+			display: block;
+			color: #ef4444;
+			font-size: 0.875rem;
+			margin-top: 0.25rem;
+		}
+		.flow-field-error.just-validate-error-label {
+			background: #f54c4c;
+			color: #000 !important;
+			font-size: 16px;
+			padding: 4px;
+			border-bottom-left-radius: 4px;
+			border-bottom-right-radius: 4px;
+			margin-top: -4px;
+			padding-top: 8px;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+		.flow-field-error.just-validate-error-label i.fa-car-bump {
+			flex-shrink: 0;
+			color: #000 !important;
+		}
+		input.invalid, input.just-validate-error-field {
+			outline: 2px solid #ef4444;
+			outline-offset: 1px;
+		}
 		.preview__card--foreground {
 			position: absolute;
 			top: 0;
@@ -35,15 +63,16 @@
 			justify-content: center;
 		}
 		.preview__card--foreground img {
-			width: 150%;
+			width: 105%;
     /* margin-left: -25%; */
     margin-top: 0;
     max-width: 110%;
     position: absolute;
-    top: 10%;
+    top: 16%;
 
 		}
 		.cardpreview-wrapper { position: relative; }
+		.summary-preview-wens-wrap img.summary-preview-wens-img { position: absolute; top: 16%; left: 50%; transform: translateX(-50%); }
 		.cardpreview-wrapper .preview__card--background { display: block; width: 100%; border-radius: 12px; overflow: hidden; }
 		.cardpreview-wrapper .preview__card--background img { width: 100%; display: block; }
 		/* Sop preview card: ratio 3/5; on mobile max-width, on desktop max-height */
@@ -508,7 +537,7 @@ height: 100vw;
 <body class="font__size--body bg-[#2C54F4] min-h-screen flex flex-col text-white">
 
 	<main class="flex-1 w-full max-w-[100%] mx-auto px-4 sm:px-6 lg:px-8 py-6 h-full">
-		<form id="flowForm" class="space-y-0 h-full" autocomplete="off">
+		<form id="flowForm" class="space-y-0 h-full" autocomplete="on">
 
 			<!-- Section 1: Start screen -->
 			<section id="section-1" class="flow-section h-full relative active" data-section="1">
@@ -609,8 +638,8 @@ height: 100vw;
 				<div class="step-panel" data-step="2">
 					<div class="step__wrapper h-full">
 						<h2 class="section__title section__title--small font__wash text-white mb-6">REDEN VOOR <br />DEZE AUTOWASBON</h2>
-						<div class="flex flex-col lg:grid lg:grid-cols-2 gap-4 max-h-[90%] overflow-y-auto
-						wasbon-wens-options bg-white rounded-xl p-4 h-full" id="flowWensOptions">
+						<div class="flex flex-col lg:grid lg:grid-cols-2 max-h-[90%] overflow-y-auto
+						wasbon-wens-options h-full pb-[160px]" id="flowWensOptions">
 							<!-- Populated from wensen-config.js -->
 						</div>
 						<input type="hidden" name="reden" id="flowReden" value="">
@@ -704,7 +733,7 @@ height: 100vw;
 
 						<div class="absolute bottom-0 left-0 right-0 p-8 z-20 pointer-events-auto w-full flex items-center justify-center">
 							
-							<button type="button" class="step-volgende-btn relative z-10 btn__main">Voeg toe <i class="fa-sharp fa-solid fa-arrow-right text-xl"></i></button>
+							<button type="button" id="btnStep4VoegToe" class="step-volgende-btn relative z-10 btn__main" disabled>Voeg toe <i class="fa-sharp fa-solid fa-arrow-right text-xl"></i></button>
 							</div>
 						</div>
 
@@ -952,7 +981,7 @@ gaan we aan de slag!
 						</div>
 						<input type="hidden" name="delivery_sop" id="deliverySop" value="digitaal">
 						<div class="max-w-[400px] mx-auto mt-6">
-							<button type="button" class="step-volgende-btn btn__main w-full">Doorgaan <i class="fa-sharp fa-solid fa-arrow-right"></i></button>
+							<button type="button" id="btnStep8Doorgaan" class="step-volgende-btn btn__main w-full" disabled>Doorgaan <i class="fa-sharp fa-solid fa-arrow-right"></i></button>
 						</div>
 					</div>
 				</div>
@@ -963,28 +992,23 @@ gaan we aan de slag!
 						<h2 class="section__title section__title--small font__wash text-white mb-6">WANNEER MOET DE AUTOWASBON<br /> VERZONDEN WORDEN?</h2>
 						<div class="flex flex-col gap-4 max-w-[400px] mx-auto">
 						<button type="button" class="send-date-option w-full bg-white rounded-md p-6 flex flex-col gap-2 text-left hover:ring-2 hover:ring-[#FACC15] hover:bg-sky-200 transition-all text-black font-semibold" data-send="datum">
-							<span>Zet een verzend datum</span>
+							<span class="text-2xl">Zet een verzend datum</span>
 							<div class="send-date-expand overflow-hidden transition-all duration-300 ease-out">
 								<div class="pt-4 border-t border-gray-200 mt-2 flex flex-wrap items-center gap-2">
-									<label class="text-sm text-gray-600">Datum:</label>
-									<div class="flex items-center gap-1 text-black">
-										<input type="number" id="sendDateDay" name="send_date_dd" min="1" max="31" placeholder="dd" class="w-12 rounded border border-gray-300 py-2 px-2 text-center text-lg" aria-label="Dag">
-										<span class="text-gray-500">/</span>
-										<input type="number" id="sendDateMonth" name="send_date_mm" min="1" max="12" placeholder="mm" class="w-12 rounded border border-gray-300 py-2 px-2 text-center text-lg" aria-label="Maand">
-										<span class="text-gray-500">/</span>
-										<input type="number" id="sendDateYear" name="send_date_yyyy" min="2025" max="2030" placeholder="jjjj" class="w-16 rounded border border-gray-300 py-2 px-2 text-center text-lg" aria-label="Jaar">
-									</div>
+									<label class="text-md text-gray-600" for="sendDatePicker">Datum:</label>
+									<input type="date" id="sendDatePicker" name="send_date_picker" min="2025-01-01" max="2030-12-31" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" aria-label="Verzenddatum" aria-describedby="sendDateError">
+									<p id="sendDateError" class="text-red-600 text-sm mt-1 w-full hidden" role="alert"></p>
 								</div>
 							</div>
 						</button>
 						<button type="button" class="send-date-option w-full bg-white rounded-md p-6 flex flex-col gap-2 text-left hover:ring-2 hover:ring-[#FACC15] hover:bg-sky-200 transition-all text-black font-semibold ring-2 ring-[#FACC15]" data-send="direct">
-							<span>Verstuur direct</span>
+							<span class="text-2xl">Verstuur direct</span>
 						</button>
 						</div>
-						<input type="hidden" name="send_when" id="sendWhen" value="direct">
+						<input type="hidden" name="send_when" id="sendWhen" value="">
 						<input type="hidden" name="send_date" id="sendDate" value="">
 						<div class="max-w-[400px] mx-auto mt-6">
-							<button type="button" id="btnBestellen" class=" btn__main w-full">Bestellen <i class="fa-sharp fa-solid fa-arrow-right"></i></button>
+							<button type="button" id="btnStep9Bestellen" class="step-volgende-btn btn__main w-full" disabled>Bestellen <i class="fa-sharp fa-solid fa-arrow-right"></i></button>
 						</div>
 					</div>
 				</div>
@@ -995,32 +1019,46 @@ gaan we aan de slag!
 			
 
 			<!-- Section 4: Jouw persoonlijke Autowasbon - gegevens -->
-			<section id="section-4" class="flow-section mx-auto max-w-[460px] overflow-y-auto" data-section="4">
+			<section id="section-4" class="flow-section mx-auto max-w-[460px]" data-section="4">
 				<h2 class="section__title section__title--small font__wash text-white mb-6">BESTEL JOUW <br />PERSOONLIJKE AUTOWASBON</h2>
-				<div class="bg-white rounded-md p-4 flex items-center gap-4 mb-6 text-black">
-					<div class="w-32 h-32 rounded-md overflow-hidden flex-shrink-0">
+				<div id="summaryPreviewCard" class="summary-preview-card rounded-md p-4 flex items-center gap-4 mb-6 text-black transition-colors shadow-lg" style="background-color: #89b7f9;">
+					<div class="w-32 aspect-[4/5] rounded-md overflow-hidden flex-shrink-0 relative">
 						<img id="summaryPreviewImg" src="_assets/_style/_images/_cardpreview/preview__calm.png" alt="" class="w-full h-full object-cover">
+						<div class="preview__card--foreground summary-preview-wens-wrap absolute inset-0 flex items-center justify-center pointer-events-none">
+							<img id="summaryPreviewWens" src="" alt="" class="summary-preview-wens-img w-[140%] max-w-none object-contain">
+						</div>
 					</div>
 					<div class="flex-1">
-						<p class="font-bold" id="summaryName">-</p>
-						<p class="text-sm text-gray-600" id="summaryType">Uitblinker</p>
-						<p class="font-bold" id="summaryWaarde">€15</p>
-						<p class="text-xs text-gray-500 mt-1">Digitaal versturen · Direct versturen</p>
+						<p class="font-bold text-3xl" id="summaryName">-</p>
+						<p class="font-bold text-2xl" id="summaryWaarde">€15</p>
+						<p id="summaryDeliverySend" class="text-xs text-gray-500 mt-1">Digitaal versturen · Direct versturen</p>
 					</div>
 				</div>
 				<div class="mb-6">
-					<h3 class="text-white font-bold uppercase mb-4">GEGEVENS ONTVANGER</h3>
+					<h3 class="text-white font-bold uppercase mb-4 text-2xl">GEGEVENS ONTVANGER</h3>
 					<div class="space-y-4">
-						<div><label class="block text-white/80 text-sm mb-1">Voornaam</label><input type="text" name="ontvanger_voornaam" class="w-full rounded-xl border-0 bg-white py-3 px-4 text-black" placeholder="Voornaam"></div>
-						<div><label class="block text-white/80 text-sm mb-1">Email</label><input type="email" name="ontvanger_email" class="w-full rounded-xl border-0 bg-white py-3 px-4 text-black" placeholder="Email"></div>
-						<div><label class="block text-white/80 text-sm mb-1">Adres</label><input type="text" name="ontvanger_adres" class="w-full rounded-xl border-0 bg-white py-3 px-4 text-black" placeholder="Adres"></div>
+						<div><label class="block text-white/80 text-md mb-1 tracking-[.025em]">Voornaam</label><input type="text" name="ontvanger_voornaam" autocomplete="shipping given-name" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Voornaam"></div>
+						<div>
+							<label class="block text-white/80 text-md mb-1">Email</label>
+							<input type="email" name="ontvanger_email" autocomplete="shipping email" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Email">
+						</div>
+						<div id="ontvangerAdresWrap" class="hidden space-y-4">
+							<div class="flex gap-4">
+								<div class="flex-1"><label class="block text-white/80 text-md mb-1">Straat</label><input type="text" name="ontvanger_straat" autocomplete="shipping street-address" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Straat"></div>
+								<div class="w-20 flex-shrink-0"><label class="block text-white/80 text-md mb-1">Nr.</label><input type="text" name="ontvanger_huisnummer" autocomplete="shipping address-line2" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Nr."></div>
+							</div>
+							<div class="flex gap-4">
+								<div class="flex-1"><label class="block text-white/80 text-md mb-1">Postcode</label><input type="text" name="ontvanger_postcode" autocomplete="shipping postal-code" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Postcode"></div>
+								<div class="flex-1"><label class="block text-white/80 text-md mb-1">Plaats</label><input type="text" name="ontvanger_plaats" autocomplete="shipping address-level2" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Plaats"></div>
+							</div>
+						</div>
 					</div>
 				</div>
 				<div class="mb-6">
-					<h3 class="text-white font-bold uppercase mb-4">JOUW GEGEVENS</h3>
+					<h3 class="text-white font-bold uppercase mb-4 text-2xl">JOUW GEGEVENS</h3>
 					<div class="space-y-4">
-						<div><label class="block text-white/80 text-sm mb-1">Voornaam</label><input type="text" name="zender_voornaam" class="w-full rounded-xl border-0 bg-white py-3 px-4 text-black" placeholder="Voornaam"></div>
-						<div><label class="block text-white/80 text-sm mb-1">Email</label><input type="email" name="zender_email" class="w-full rounded-xl border-0 bg-white py-3 px-4 text-black" placeholder="Email"></div>
+						<div><label class="block text-white/80 text-md mb-1">Voornaam</label><input type="text" name="zender_voornaam" autocomplete="billing given-name" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Voornaam"></div>
+						<div><label class="block text-white/80 text-md mb-1">Email</label><input type="email" name="zender_email" autocomplete="billing email" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Email"></div>
 					</div>
 				</div>
 
@@ -1029,8 +1067,27 @@ gaan we aan de slag!
 				</div>
 			</section>
 
-			<!-- Section 5: Mollie -->
-			<section id="section-5" class="flow-section" data-section="5">
+			<!-- Section 5: Bevestig e-mailadres -->
+			<section id="section-5" class="flow-section mx-auto max-w-[460px]" data-section="5">
+				<h2 class="section__title section__title--small font__wash text-white mb-6">Even een kleine email check<br /> voordat we verder gaan</h2>
+				<div class="bg-white rounded-md py-4 px-6 mb-6 text-black space-y-3">
+					<div>
+						<p class="text-gray-500 text-md mb-1">Email van de ontvanger</p>
+						<p id="emailConfirmOntvanger" class="font-semibold text-2xl break-all">—</p>
+					</div>
+					<div>
+						<p class="text-gray-500 text-md mb-1">Jouw e-mail</p>
+						<p id="emailConfirmZender" class="font-semibold text-2xl break-all">—</p>
+					</div>
+				</div>
+				<div class="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-[440px] mx-auto">
+					<button type="button" id="btnEmailWijzig" class="btn__main bg-black text-white w-full sm:w-auto">Wijzig</button>
+					<button type="button" class="step-volgende-btn btn__main w-full sm:w-auto">Yes, dit klopt! <i class="fa-sharp fa-solid fa-arrow-right ml-2"></i></button>
+				</div>
+			</section>
+
+			<!-- Section 6: Mollie -->
+			<section id="section-6" class="flow-section mx-auto max-w-[460px]" data-section="6">
 				<h2 class="section__title section__title--small font__wash text-white mb-6 text-center">BETALEN</h2>
 				<div class="bg-gray-700 rounded-2xl p-12 flex flex-col items-center justify-center min-h-[200px] gap-6">
 					<p class="text-white font-bold text-2xl">MOLLIE</p>
@@ -1038,43 +1095,62 @@ gaan we aan de slag!
 				</div>
 			</section>
 
-			<!-- Section 6: Jouw Autowasbon is Gereed -->
-			<section id="section-6" class="flow-section mx-auto max-w-[460px]" data-section="6">
-				<h2 class="section__title section__title--small font__wash text-white mb-6 text-center">YES! JOUW AUTOWASBON <br />IS GEREED!</h2>
+			<!-- Section 7: Jouw Autowasbon is Gereed -->
+			<section id="section-7" class="flow-section mx-auto max-w-[460px]" data-section="7">
+				<div class="title__wash font__wash mb-6">
+					<div class="title__wash--logo flex justify-center items-center z-10 relative rotate-3 mb-[32px]">
+					  <img src="_assets/_style/_images/logo-main.svg" alt="Log Nat. Autowasbon" class="card__logo w-[96px]">
+					</div>
+					<img class="title__wash--water" src="_assets/_style/_images/autowasbon__shower.svg">
+					<h1 id="confirmSendMessage" class="section__title relative">
+						YES! <br />JOUW AUTOWASBON IS<br /> KLAAR VOOR GEBRUIK!
+						
+					</h1>
+				</div>
+				
 				<div class="cardpreview-wrapper w-[280px] mx-auto mb-4 relative">
 					<div class="preview__card--background rounded-xl overflow-hidden relative">
 						<img id="confirmPreviewBg" src="_assets/_style/_images/_cardpreview/preview__calm.png" alt="Autowasbon">
 						<div class="preview__card--foreground">
 							<img id="confirmPreviewWens" src="" alt="Wens">
 						</div>
-						<div class="absolute top-3 left-3 bg-[#22C55E] text-white text-sm font-medium px-3 py-1 rounded-full" id="confirmRecipientTag">-</div>
+						<div id="confirmRecipientTag" class="font__wash text-black absolute top-[7%] left-1/2 -translate-x-1/2 text-[20px] uppercase tracking-[0.02em] z-10 whitespace-nowrap overflow-hidden text-center max-w-[85%]">-</div>
 					</div>
 				</div>
-				<p class="text-center text-white mb-6">Jouw Autowasbon is verstuurd</p>
-				<a href="#" id="linkFactuur" class="block text-center text-white font-bold text-lg hover:underline">Factuur nodig?</a>
+				
+				<div class="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-[440px] mx-auto">
+				<a href="#" id="linkFactuur" class="btn__main bg-black text-white w-full sm:w-auto">Factuur nodig?</a>
+				</div>
 			</section>
 
-			<!-- Section 7: Maak factuur -->
-			<section id="section-7" class="flow-section" data-section="7">
+			<!-- Section 8: Maak factuur -->
+			<section id="section-8" class="flow-section mx-auto max-w-[460px]" data-section="8">
 				<h2 class="section__title section__title--small font__wash text-white mb-6">MAAK FACTUUR</h2>
-				<div class="bg-white rounded-xl p-4 flex items-center gap-4 mb-6 text-black">
-					<div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-						<img id="factuurPreviewImg" src="_assets/_style/_images/_cardpreview/preview__calm.png" alt="" class="w-full h-full object-cover">
-					</div>
-					<div class="flex-1">
-						<p class="font-bold">Niels</p>
-						<p class="text-sm text-gray-600">Uitblinker</p>
-						<p class="font-bold">€15</p>
-						<p class="text-xs text-gray-500 mt-1">Digitaal versturen · Direct versturen</p>
-					</div>
-				</div>
-				<h3 class="text-white font-bold uppercase mb-4">JOUW GEGEVENS</h3>
+				
+				<h3 class="text-white font-bold uppercase mb-4 text-2xl">Factuur gegevens</h3>
 				<div class="space-y-4 mb-8">
-					<div><label class="block text-white/80 text-sm mb-1">Voornaam</label><input type="text" name="factuur_voornaam" class="w-full rounded-xl border-0 bg-white py-3 px-4 text-black" placeholder="Voornaam"></div>
-					<div><label class="block text-white/80 text-sm mb-1">Email</label><input type="email" name="factuur_email" class="w-full rounded-xl border-0 bg-white py-3 px-4 text-black" placeholder="Email"></div>
-					<div><label class="block text-white/80 text-sm mb-1">Adres</label><input type="text" name="factuur_adres" class="w-full rounded-xl border-0 bg-white py-3 px-4 text-black" placeholder="Adres"></div>
+					<div><label class="block text-white/80 text-md mb-1">Bedrijfsnaam</label><input type="text" name="factuur_bedrijfsnaam" autocomplete="billing organization" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Bedrijfsnaam"></div>
+					<div><label class="block text-white/80 text-md mb-1">Voornaam</label><input type="text" name="factuur_voornaam" autocomplete="billing given-name" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Voornaam"></div>
+					<div><label class="block text-white/80 text-md mb-1">Email</label><input type="email" name="factuur_email" autocomplete="billing email" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Email"></div>
+					<div class="flex gap-4">
+						<div class="flex-1"><label class="block text-white/80 text-md mb-1">Straat</label><input type="text" name="factuur_straat" autocomplete="billing street-address" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Straat"></div>
+						<div class="w-20 flex-shrink-0"><label class="block text-white/80 text-md mb-1">Nr.</label><input type="text" name="factuur_huisnummer" autocomplete="billing address-line2" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Nr."></div>
+					</div>
+					<div class="flex gap-4">
+						<div class="flex-1"><label class="block text-white/80 text-md mb-1">Postcode</label><input type="text" name="factuur_postcode" autocomplete="billing postal-code" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Postcode"></div>
+						<div class="flex-1"><label class="block text-white/80 text-md mb-1">Plaats</label><input type="text" name="factuur_plaats" autocomplete="billing address-level2" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Plaats"></div>
+					</div>
 				</div>
-				<button type="button" id="btnMaakFactuur" class="w-full bg-black text-white font-bold py-4 rounded-xl uppercase hover:bg-gray-800 transition-colors">Maak factuur <i class="fa-sharp fa-solid fa-arrow-right ml-2"></i></button>
+				
+				<div class="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-[440px] mx-auto">
+				<button type="button" id="btnMaakFactuur" class="btn__main mb-8">Maak factuur <i class="fa-sharp fa-solid fa-arrow-right ml-2"></i></button>
+				</div>
+			</section>
+
+			<!-- Section 9: Factuur gemaakt -->
+			<section id="section-9" class="flow-section mx-auto max-w-[460px]" data-section="9">
+				<h2 class="section__title section__title--small font__wash text-white mb-6 text-center">Factuur is gemaakt!</h2>
+				<p class="text-center text-white text-xl mb-8">Gestuurd naar je email.</p>
 			</section>
 		</form>
 	</main>
@@ -1082,6 +1158,7 @@ gaan we aan de slag!
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+	<script src="https://unpkg.com/just-validate@3.6.1/dist/just-validate.production.min.js"></script>
 	<script type="module" src="_assets/_js/maakbon-main.js"></script>
 </body>
 </html>

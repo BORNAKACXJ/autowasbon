@@ -48,11 +48,16 @@ export class WasbonForm {
     const container = document.getElementById('wasbon-wens-options');
     if (!container || this.wensen.length === 0) return;
 
-    container.innerHTML = this.wensen.map(wens => `
-      <button class="wasbon-wens-btn shadow-lg/40" data-wens="${this.escapeHtml(wens.name)}" data-wens-key="${this.escapeHtml(wens.key)}" data-wens-index="${this.wensen.indexOf(wens)}">
+    const backIndices = [1, 2, 3, 4, 5, 6].sort(() => Math.random() - 0.5);
+    container.innerHTML = this.wensen.map((wens, i) => {
+      const backNum = String(backIndices[i % 6]).padStart(3, '0');
+      const backUrl = `_assets/_style/_images/_wens-back/wens__back--${backNum}.png`;
+      return `
+      <button class="wasbon-wens-btn shadow-lg/40" data-wens="${this.escapeHtml(wens.name)}" data-wens-key="${this.escapeHtml(wens.key)}" data-wens-index="${this.wensen.indexOf(wens)}" style="background-image: url('${backUrl}')">
         <img src="${this.escapeHtml(wens.thumbnail)}" alt="${this.escapeHtml(wens.alt)}" class="wasbon-wens-image">
       </button>
-    `).join('');
+    `;
+    }).join('');
   }
 
   escapeHtml(text) {
@@ -246,11 +251,18 @@ export class WasbonForm {
                 <div class="wasbon-step-content-inner">
                   <h3>Kies een wens</h3>
                   <div class="wasbon-wens-options" id="wasbon-wens-options">
-                    ${this.wensen.map((w, i) => `
-                      <button class="wasbon-wens-btn" data-wens="${w.name}" data-wens-key="${w.key}" data-wens-index="${i}">
+                    ${(() => {
+                      const backIndices = [1, 2, 3, 4, 5, 6].sort(() => Math.random() - 0.5);
+                      return this.wensen.map((w, i) => {
+                        const backNum = String(backIndices[i % 6]).padStart(3, '0');
+                        const backUrl = `_assets/_style/_images/_wens-back/wens__back--${backNum}.png`;
+                        return `
+                      <button class="wasbon-wens-btn" data-wens="${w.name}" data-wens-key="${w.key}" data-wens-index="${i}" style="background-image: url('${backUrl}')">
                         <img src="${w.thumbnail}" alt="${w.alt}" class="wasbon-wens-image">
                       </button>
-                    `).join('')}
+                    `;
+                      }).join('');
+                    })()}
                   </div>
                 </div>
               </div>

@@ -8,6 +8,8 @@ import { loadStep3Lottie, loadStep4Lottie, loadSopPreviewLottie, getStep3LottieA
 
 const WENS_BASE = '_assets/_style/_images/_wens/';
 
+const STEP7_SUMMARY = 7;
+
 export function createFlowState() {
 	let currentSection = 1;
 	let currentStepSection2 = 1;
@@ -16,9 +18,19 @@ export function createFlowState() {
 	let deliveryPrice = 0.99;
 	let waarde = 15;
 	let mollieTimer = null;
+	/** When true, user came from step 7 (summary) to edit; next should return to step 7 instead of walking steps. */
+	let returnToStep7AfterEdit = false;
 	const wensImagesRef = { current: {} };
 
 	const progress = document.getElementById('stepProgress');
+
+	const MAANDEN = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december'];
+	function formatSendDate(iso) {
+		if (!iso || iso.length < 10) return '';
+		const [y, m, d] = iso.split('-').map(Number);
+		if (!d || !m || !y) return '';
+		return `${d} ${MAANDEN[m - 1]} ${y}`;
+	}
 
 	function showSection(sectionNum) {
 		currentSection = sectionNum;
@@ -30,7 +42,43 @@ export function createFlowState() {
 			el.classList.toggle('active', parseInt(el.dataset.section, 10) === sectionNum);
 		});
 
+		if (sectionNum === 4) {
+			const deliverySop = document.getElementById('deliverySop');
+			const adresWrap = document.getElementById('ontvangerAdresWrap');
+			if (adresWrap && deliverySop) {
+				adresWrap.classList.toggle('hidden', deliverySop.value !== 'post');
+			}
+		}
 		if (sectionNum === 5) {
+			// Email confirm: show emails from section 4 form
+			const ontvangerEl = document.querySelector('input[name="ontvanger_email"]');
+			const zenderEl = document.querySelector('input[name="zender_email"]');
+			const d1 = document.getElementById('emailConfirmOntvanger');
+			const d2 = document.getElementById('emailConfirmZender');
+			if (d1 && ontvangerEl) d1.textContent = ontvangerEl.value.trim() || '—';
+			if (d2 && zenderEl) d2.textContent = zenderEl.value.trim() || '—';
+		}
+		if (sectionNum === 7) {
+			const sendWhen = document.getElementById('sendWhen')?.value || 'direct';
+			const msgEl = document.getElementById('confirmSendMessage');
+			if (msgEl) {
+				if (sendWhen === 'datum') {
+					msgEl.textContent = 'Yes! Je autowasbon is ingepland voor verzending!';
+				} else {
+					msgEl.textContent = 'YES! JOUW AUTOWASBON VERSTUURD EN KLAAR VOOR GEBRUIK!';
+				}
+			}
+		}
+		if (sectionNum === 8) {
+			// Pre-fill factuur with user (zender) data from section 4 – not ontvanger
+			const zenderVoornaam = document.querySelector('input[name="zender_voornaam"]');
+			const zenderEmail = document.querySelector('input[name="zender_email"]');
+			const factuurVoornaam = document.querySelector('input[name="factuur_voornaam"]');
+			const factuurEmail = document.querySelector('input[name="factuur_email"]');
+			if (factuurVoornaam && zenderVoornaam) factuurVoornaam.value = zenderVoornaam.value || '';
+			if (factuurEmail && zenderEmail) factuurEmail.value = zenderEmail.value || '';
+		}
+		if (sectionNum === 6) {
 			const countdownEl = document.getElementById('mollieCountdown');
 			let seconds = 5;
 			if (countdownEl) countdownEl.textContent = seconds;
@@ -40,7 +88,7 @@ export function createFlowState() {
 				if (seconds <= 0) {
 					if (mollieTimer) clearInterval(mollieTimer);
 					mollieTimer = null;
-					api.showSection(6);
+					api.showSection(7);
 				}
 			}, 1000);
 		}
@@ -51,6 +99,9 @@ export function createFlowState() {
 			});
 			progress.style.width = (currentStepSection2 / SECTION2_STEPS * 100) + '%';
 			updatePreviews();
+			if (currentStepSection2 === 2 && typeof this.updateWensBtnScales === 'function') {
+				requestAnimationFrame(() => this.updateWensBtnScales());
+			}
 			return;
 		}
 
@@ -103,6 +154,9 @@ export function createFlowState() {
 		});
 		progress.style.width = (step / SECTION2_STEPS * 100) + '%';
 		updatePreviews();
+		if (step === 2 && typeof this.updateWensBtnScales === 'function') {
+			requestAnimationFrame(() => this.updateWensBtnScales());
+		}
 		// Pause Lotties on steps we're leaving; actual play is done in flow-animations after step-in (so panel is visible)
 		if (step !== 3) {
 			const sopPreview = getSopPreviewLottieAnim();
@@ -120,6 +174,10 @@ export function createFlowState() {
 	/** Go to section 2 and show a specific step (1–9). Use for "Edit" from step 7 summary. */
 	function editStep(step) {
 		const s = Math.max(1, Math.min(Number(step), SECTION2_STEPS));
+		// User is on step 7 summary; after editing they should return to step 7, not re-walk all steps
+		if (currentStepSection2 === STEP7_SUMMARY) {
+			returnToStep7AfterEdit = true;
+		}
 		api.showSection(2);
 		api.showStepSection2(s, optsRef.current);
 	}
@@ -132,14 +190,19 @@ export function createFlowState() {
 		}
 		if (currentSection === 2) {
 			if (currentStepSection2 < SECTION2_STEPS) {
-				api.showStepSection2(currentStepSection2 + 1, optsRef.current);
+				if (returnToStep7AfterEdit) {
+					api.showStepSection2(STEP7_SUMMARY, optsRef.current);
+					returnToStep7AfterEdit = false;
+				} else {
+					api.showStepSection2(currentStepSection2 + 1, optsRef.current);
+				}
 			} else {
 				api.showSection(4);
 				updatePreviews();
 			}
 			return;
 		}
-		if (currentSection < 7) {
+		if (currentSection < 8) {
 			api.showSection(currentSection + 1);
 		}
 	}
@@ -158,20 +221,35 @@ export function createFlowState() {
 		const mediaBgImg = document.getElementById('background__media_img');
 		if (mediaBgImg && sop) mediaBgImg.src = sop.backgroundMedia || '_assets/_style/_images/_mediaboog/background__photo--' + sop.key + '.png';
 		const wensImages = wensImagesRef.current || {};
-		document.querySelectorAll('#flowPreviewWens, #confirmPreviewWens').forEach(el => {
+		document.querySelectorAll('#flowPreviewWens, #confirmPreviewWens, #summaryPreviewWens').forEach(el => {
 			if (el) el.src = redenKey && wensImages[redenKey] ? WENS_BASE + wensImages[redenKey] : '';
 		});
+		const summaryPreviewCard = document.getElementById('summaryPreviewCard');
+		if (summaryPreviewCard && sop) summaryPreviewCard.style.backgroundColor = sop.bgColor || '#89b7f9';
 		const wensBtn = document.querySelector('.wasbon-wens-btn.selected');
 		const wensName = wensBtn ? wensBtn.getAttribute('data-name') : '-';
 		const summaryName = document.getElementById('summaryName');
-		const summaryType = document.getElementById('summaryType');
 		const flowPreviewName = document.getElementById('flowPreviewName');
 		if (summaryName) summaryName.textContent = receiver;
 		if (flowPreviewName) flowPreviewName.textContent = receiver;
-		if (summaryType) summaryType.textContent = wensName;
+		const confirmRecipientTag = document.getElementById('confirmRecipientTag');
+		if (confirmRecipientTag) confirmRecipientTag.textContent = (receiver && receiver !== '-') ? receiver : 'Naam';
 		const waardeEl = document.getElementById('flowWaarde');
 		const summaryWaarde = document.getElementById('summaryWaarde');
 		if (waardeEl && summaryWaarde) summaryWaarde.textContent = '€' + waardeEl.value;
+
+		// Section 4 summary: delivery + send when (dynamic)
+		const summaryDeliverySend = document.getElementById('summaryDeliverySend');
+		if (summaryDeliverySend) {
+			const deliverySop = document.getElementById('deliverySop')?.value || 'digitaal';
+			const sendWhen = document.getElementById('sendWhen')?.value || 'direct';
+			const sendDateRaw = document.getElementById('sendDate')?.value || '';
+			const deliveryLabel = deliverySop === 'post' ? 'Via de post' : 'Digitaal versturen';
+			const sendLabel = sendWhen === 'datum' && sendDateRaw
+				? 'Verzenden op ' + formatSendDate(sendDateRaw)
+				: 'Direct versturen';
+			summaryDeliverySend.textContent = deliveryLabel + ' · ' + sendLabel;
+		}
 
 		// Step 7 summary panel: card backgrounds, wens, soap, name boog, bericht, media boog, waarde
 		const step7Cards = document.querySelectorAll('.step7-dynamic-bg');
