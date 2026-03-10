@@ -4,11 +4,7 @@
 
 export const SECTION2_STEPS = 9;
 
-/** Spotify API (for embed/Web API). Client ID is safe in frontend; secret must only be used server-side. */
-export const SPOTIFY_CLIENT_ID = 'c96e3ab2afc14b77a1ac4e3c3e5cefa2';
-/** Use only on a server / in env vars; never expose in client bundles. */
-export const SPOTIFY_CLIENT_SECRET = '2e9d6bfeb55d46b1b959a7dc270d6315';
-/** Backend URL that returns { access_token }. Use local server (node server.js) or Vercel api/spotify-token. */
+/** Backend URL that returns { access_token }. Set SPOTIFY_CLIENT_ID + SPOTIFY_CLIENT_SECRET only in server env (Vercel / .env). */
 export const SPOTIFY_TOKEN_URL = '/api/spotify-token';
 /** Backend URL that returns { artist, name } for a track. GET ?id=trackId. Same server as SPOTIFY_TOKEN_URL. */
 export const SPOTIFY_TRACK_URL = '/api/spotify-track';
