@@ -63,7 +63,7 @@ function applyVoucherToSection7(voucher) {
 	if (confirmPreviewBg && sop?.preview) confirmPreviewBg.src = sop.preview;
 
 	// Wens image (based on voucher_type)
-	const wensKey = VOUCHER_TYPE_TO_WENS_KEY[String(voucher.voucher_type)] || 'uitblinker';
+	const wensKey = VOUCHER_TYPE_TO_WENS_KEY[String(voucher.voucher_type.value)] || 'uitblinker';
 	const confirmPreviewWens = document.getElementById('confirmPreviewWens');
 	if (confirmPreviewWens) {
 		confirmPreviewWens.src = WENS_BASE + `wens__${wensKey}.png`;
