@@ -72,7 +72,13 @@ function buildVoucherPayload() {
 
 	const fd = new FormData();
 	for (const [k, v] of Object.entries(payload)) {
-		if (v !== '' && v !== null && v !== undefined) fd.append(k, String(v));
+		if (v === '' || v === null || v === undefined) continue;
+		// Laravel boolean rule accepts 0/1; FormData stringifies booleans as "true"/"false" which fail validation.
+		if (typeof v === 'boolean') {
+			fd.append(k, v ? '1' : '0');
+		} else {
+			fd.append(k, String(v));
+		}
 	}
 
 	const photoInput = document.getElementById('photoUpload');
