@@ -10,6 +10,7 @@ import { initWensen } from './maakbon-wensen.js';
 import { initSop } from './maakbon-sop.js';
 import { initSteps } from './maakbon-steps.js';
 import { initFlowValidation } from './flow-validation.js';
+import { initBackendIntegration } from './backend-integration.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
 	initLottieClickFeedback();
@@ -21,6 +22,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 	const flowValidation = initFlowValidation();
 
 	document.getElementById('btnStart').addEventListener('click', () => state.goNext());
+
+	initBackendIntegration();
+
 	document.querySelectorAll('.step-volgende-btn').forEach(btn => btn.addEventListener('click', () => state.goNext()));
 
 	document.getElementById('btnAfrekenen').addEventListener('click', async () => {
