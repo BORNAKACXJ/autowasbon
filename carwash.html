@@ -1145,8 +1145,10 @@
     photo: 'vouchers/GHqNiZED0D7B07TNyLJq2TgGYOyY8AVu47S2AKTU.jpg', // 'vouchers/Op3CquqHC9jZ8VjtdvTiFDASdOkJUFnv1Dz0b8h1.webp',
     // photo: '_assets/GHqNiZED0D7B07TNyLJq2TgGYOyY8AVu47S2AKTU.jpg',
     value: 15, valid_until: '2027-03-19',
-    receiver_firstname: 'Jacco', receiver_lastname: null,
+    receiver_firstname: 'Jacco',
+    receiver_lastname: null,
     giver_firstname: 'Emiel',
+    autowasbon_qr_url: 'https://beleving.autowasbon.nl/_assets/_style/_images/random_qr.png',
   };
 
   const voucherId = new URLSearchParams(window.location.search).get('voucher');
@@ -1159,7 +1161,7 @@
       voucher = DUMMY_VOUCHER;
       console.log('[Voucher] Using dummy data (localhost):', voucher);
     } else {
-      const url = `https://beleving.api.autowasbon.nl/api/v1/vouchers/${encodeURIComponent(voucherId)}`;
+      const url = `https://beleving.api.autowasbon.nl/api/v1/vouchers/${encodeURIComponent(voucherId)}/experience`;
       const res = await fetch(url, { headers: { Accept: 'application/json' } });
       const json = await res.json().catch(() => ({}));
       voucher = json?.data?.data ?? json?.data ?? null;
@@ -1190,6 +1192,14 @@
         const photoUrl = `https://beleving.api.autowasbon.nl/api/v1/vouchers/${voucher.uuid}/photo`;
         setMediaUrlGetter(() => photoUrl);
         console.log('[Voucher] Photo set to:', photoUrl);
+      }
+
+      // Set QR code image
+      const qrUrl = voucher.autowasbon_qr_url;
+      if (qrUrl) {
+        const qrImg = document.getElementById('voucherQrImg');
+        if (qrImg) qrImg.src = qrUrl;
+        console.log('[Voucher] QR set to:', qrUrl);
       }
     }
   }

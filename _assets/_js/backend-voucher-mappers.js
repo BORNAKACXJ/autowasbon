@@ -10,8 +10,7 @@ export const VOUCHER_TYPE_TO_WENS_KEY = Object.entries(WENS_TO_VOUCHER_TYPE).red
 	return acc;
 }, {});
 
-/** Map flowWaarde (15|17.5|20) to API value (7.5|10|15). */
-export const WAARDE_TO_API = { 15: 7.5, 17.5: 10, 20: 15 };
+export const WAARDE_TO_API = { 15: 15, 17.5: 17.5, 20: 20 };
 
 /** Accept enum object ({ value }) or primitive and normalize to string key. */
 export function normalizeVoucherTypeKey(voucherType) {
@@ -29,4 +28,3 @@ export function normalizeVoucherTypeNumber(voucherType) {
 	const n = Number(raw);
 	return Number.isFinite(n) ? n : null;
 }
-
