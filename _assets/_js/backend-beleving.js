@@ -2,6 +2,7 @@ import { fetchVoucher } from './backend-api.js';
 import { setDoucheGordijnTextGetter, setNameGetter, USER_MEDIA_GAMMA } from '../_components/carwash-config.js';
 import { WENSEN, USER_WENS_LOTTIE_OPTIONS } from '../_components/wensen-config.js';
 import { VOUCHER_TYPE_TO_WENS_KEY, normalizeVoucherTypeKey } from './backend-voucher-mappers.js';
+import { SOAP_OPTIONS } from './maakbon-config.js';
 
 function waitForCarwashReady({ timeoutMs = 30000 } = {}) {
 	return new Promise((resolve) => {
@@ -45,7 +46,7 @@ function applyVoucherToCarwashCardBack(voucher) {
 	const codeEl = document.getElementById('voucherCode');
 	const barcodeImg = document.getElementById('voucherBarcodeImg');
 
-	const qrUrl = voucher.qr_url || voucher.qr_code_url || voucher.qr || voucher.qr_code;
+	const qrUrl = voucher.autowasbon_qr_url || voucher.qr_url || voucher.qr_code_url || voucher.qr || voucher.qr_code;
 	if (qrImg && typeof qrUrl === 'string' && qrUrl) qrImg.src = qrUrl;
 
 	const value = normalizeVoucherValue(voucher.value ?? voucher.amount ?? voucher.voucher_value);
@@ -71,8 +72,17 @@ function applyVoucherToCarwashExperience(voucher) {
 	if (msg) setDoucheGordijnTextGetter(() => msg);
 
 	const themeName = (voucher.theme || voucher.soap_theme || voucher.sop_theme || voucher.soap || '').trim();
-	if (themeName && typeof window.applyCarwashTheme === 'function') {
-		window.applyCarwashTheme(themeName);
+	const resolvedTheme = themeName || (() => {
+		const rawLayout = voucher.voucher_layout && typeof voucher.voucher_layout === 'object' && 'value' in voucher.voucher_layout
+			? voucher.voucher_layout.value
+			: voucher.voucher_layout;
+		const idx = Number(rawLayout);
+		return (Number.isInteger(idx) && idx >= 1 && idx <= SOAP_OPTIONS.length)
+			? (SOAP_OPTIONS[idx - 1]?.key || '')
+			: '';
+	})();
+	if (resolvedTheme && typeof window.applyCarwashTheme === 'function') {
+		window.applyCarwashTheme(resolvedTheme);
 	}
 
 	const voucherTypeKey = normalizeVoucherTypeKey(voucher.voucher_type);
