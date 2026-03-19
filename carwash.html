@@ -1143,6 +1143,7 @@
     voucher_layout: { value: 3, label: 'Sweet Flowers' },
     personal_message: 'Hey Jacco, gefeliciteerd met het behalen van je rijexamen. Mocht ook wel na 34 pogingen haha!',
     photo: 'vouchers/GHqNiZED0D7B07TNyLJq2TgGYOyY8AVu47S2AKTU.jpg', // 'vouchers/Op3CquqHC9jZ8VjtdvTiFDASdOkJUFnv1Dz0b8h1.webp',
+    // photo: '_assets/GHqNiZED0D7B07TNyLJq2TgGYOyY8AVu47S2AKTU.jpg',
     value: 15, valid_until: '2027-03-19',
     receiver_firstname: 'Jacco', receiver_lastname: null,
     giver_firstname: 'Emiel',
@@ -1184,10 +1185,9 @@
       if (theme) setSoapTheme(theme);
       console.log('[Voucher] Theme set to:', theme);
 
-      // Set photo
-      const rawPhoto = voucher.photo_url || voucher.photo;
-      if (rawPhoto) {
-        const photoUrl = rawPhoto.startsWith('http') ? rawPhoto : `https://beleving.api.autowasbon.nl/storage/${rawPhoto}`;
+      // Set photo via API endpoint (served with CORS headers, no blob workaround needed)
+      if (voucher.uuid) {
+        const photoUrl = `https://beleving.api.autowasbon.nl/api/v1/vouchers/${voucher.uuid}/photo`;
         setMediaUrlGetter(() => photoUrl);
         console.log('[Voucher] Photo set to:', photoUrl);
       }
