@@ -8,8 +8,8 @@ export default defineConfig({
     outDir: 'dist',
     rollupOptions: {
       input: {
+        carwash: 'carwash.html',
         flow:    'index.html',
-        voucher: 'voucher/index.html',
       },
     },
   },
