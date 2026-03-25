@@ -572,6 +572,14 @@ async function loadPendingStation(pending) {
 
 // Load stations sequentially
 async function loadAllStations() {
+  // Wait for voucher data to be applied before loading stations and textures.
+  // This ensures setNameGetter / setSoapTheme etc. are called before applyUVMappings.
+  // Fixes a Safari/iOS race condition where the 3D scene would start before the
+  // async voucher fetch in carwash.html's inline script had finished.
+  if (window.__voucherPreload) {
+    await window.__voucherPreload;
+  }
+
   const loader = new window.GLTFLoader();
   let currentZ = 0;
   

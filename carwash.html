@@ -1142,8 +1142,7 @@
     voucher_type: { value: 8, label: 'Sparkling!' },
     voucher_layout: { value: 3, label: 'Sweet Flowers' },
     personal_message: 'Hey Jacco, gefeliciteerd met het behalen van je rijexamen. Mocht ook wel na 34 pogingen haha!',
-    photo: 'vouchers/GHqNiZED0D7B07TNyLJq2TgGYOyY8AVu47S2AKTU.jpg', // 'vouchers/Op3CquqHC9jZ8VjtdvTiFDASdOkJUFnv1Dz0b8h1.webp',
-    // photo: '_assets/GHqNiZED0D7B07TNyLJq2TgGYOyY8AVu47S2AKTU.jpg',
+    photo: 'vouchers/GHqNiZED0D7B07TNyLJq2TgGYOyY8AVu47S2AKTU.jpg',
     value: 15,
     valid_until: '2027-03-19',
     receiver_firstname: 'Jacco',
@@ -1152,69 +1151,68 @@
     autowasbon_qr_url: 'https://beleving.autowasbon.nl/_assets/_style/_images/random_qr.png',
   };
 
-  const voucherId = new URLSearchParams(window.location.search).get('voucher');
-  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  async function setupVoucher() {
+    const voucherId = new URLSearchParams(window.location.search).get('voucher');
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-  if (isLocalhost || voucherId) {
+    if (!isLocalhost && !voucherId) return;
+
     let voucher = null;
 
     if (isLocalhost) {
       voucher = DUMMY_VOUCHER;
-      console.log('[Voucher] Using dummy data (localhost):', voucher);
     } else {
-      const url = `https://beleving.api.autowasbon.nl/api/v1/vouchers/${encodeURIComponent(voucherId)}/experience`;
-      const res = await fetch(url, { headers: { Accept: 'application/json' } });
-      const json = await res.json().catch(() => ({}));
-      voucher = json?.data?.data ?? json?.data ?? null;
-      console.log('[Voucher] API response:', voucher);
+      try {
+        const url = `https://beleving.api.autowasbon.nl/api/v1/vouchers/${encodeURIComponent(voucherId)}/experience`;
+        const res = await fetch(url, { headers: { Accept: 'application/json' } });
+        const json = await res.json().catch(() => ({}));
+        voucher = json?.data?.data ?? json?.data ?? null;
+      } catch (e) {
+        console.warn('[Voucher] Fetch failed:', e);
+      }
     }
 
-    if (voucher) {
-      window.__voucherData = voucher;
+    if (!voucher) return;
 
-      // Set name
-      const name = [voucher.receiver_firstname, voucher.receiver_lastname].filter(Boolean).join(' ').trim();
-      if (name) setNameGetter(() => name);
-      console.log('[Voucher] Name set to:', name);
+    window.__voucherData = voucher;
 
-      // Set personal message
-      const msg = (voucher.personal_message || '').trim();
-      if (msg) setDoucheGordijnTextGetter(() => msg);
-      console.log('[Voucher] Message set to:', msg);
+    const name = [voucher.receiver_firstname, voucher.receiver_lastname].filter(Boolean).join(' ').trim();
+    if (name) setNameGetter(() => name);
 
-      // Set theme from voucher_layout index
-      const layoutIdx = voucher.voucher_layout?.value ?? voucher.voucher_layout;
-      const theme = SOAP_OPTIONS[Number(layoutIdx) - 1]?.name;
-      if (theme) setSoapTheme(theme);
-      console.log('[Voucher] Theme set to:', theme);
+    const msg = (voucher.personal_message || '').trim();
+    if (msg) setDoucheGordijnTextGetter(() => msg);
 
-      // Set photo via API endpoint (served with CORS headers, no blob workaround needed)
-      if (voucher.uuid) {
-        const photoUrl = `https://beleving.api.autowasbon.nl/api/v1/vouchers/${voucher.uuid}/photo`;
-        setMediaUrlGetter(() => photoUrl);
-        console.log('[Voucher] Photo set to:', photoUrl);
-      }
+    const layoutIdx = voucher.voucher_layout?.value ?? voucher.voucher_layout;
+    const theme = SOAP_OPTIONS[Number(layoutIdx) - 1]?.name;
+    if (theme) setSoapTheme(theme);
 
-      // Set QR code image
-      const qrUrl = voucher.autowasbon_qr_url;
-      if (qrUrl) {
-        const qrImg = document.getElementById('voucherQrImg');
-        if (qrImg) qrImg.src = qrUrl;
-      }
+    if (voucher.uuid) {
+      const photoUrl = `https://beleving.api.autowasbon.nl/api/v1/vouchers/${voucher.uuid}/photo`;
+      setMediaUrlGetter(() => photoUrl);
+    }
 
-      // Set value and expiry
-      const valueEl = document.getElementById('voucherValue');
-      if (valueEl && voucher.value != null) {
-        const formatted = Number(voucher.value).toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' });
-        valueEl.textContent = formatted;
-      }
-      const validUntilEl = document.getElementById('voucherValidUntil');
-      if (validUntilEl && voucher.valid_until) {
-        const [y, m, d] = voucher.valid_until.split('-');
-        validUntilEl.textContent = `${d}-${m}-${y}`;
-      }
+    // DOM updates (QR, value, expiry) — these don't affect 3D scene timing
+    const qrUrl = voucher.autowasbon_qr_url;
+    if (qrUrl) {
+      const qrImg = document.getElementById('voucherQrImg');
+      if (qrImg) qrImg.src = qrUrl;
+    }
+
+    const valueEl = document.getElementById('voucherValue');
+    if (valueEl && voucher.value != null) {
+      valueEl.textContent = Number(voucher.value).toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' });
+    }
+
+    const validUntilEl = document.getElementById('voucherValidUntil');
+    if (validUntilEl && voucher.valid_until) {
+      const [y, m, d] = voucher.valid_until.split('-');
+      validUntilEl.textContent = `${d}-${m}-${y}`;
     }
   }
+
+  // Store Promise on window so carwash-main.js can await it before loading stations.
+  // Do NOT top-level await here — Safari/iOS may start carwash-main.js in parallel otherwise.
+  window.__voucherPreload = setupVoucher();
 </script>
 <script type="module" src="_assets/_components/carwash-main.js"></script>
 <script type="module" src="_assets/_components/lottie-mask.js"></script>
