@@ -1014,7 +1014,7 @@
                     />
         
                     <!-- Center logo overlay -->
-                    <div class="absolute inset-0 flex items-center justify-center">
+                    <!-- <div class="absolute inset-0 flex items-center justify-center">
                       <div class="bg-white ratio-1-1 p-2">
                        
                         <img
@@ -1023,7 +1023,7 @@
                           class="h-11 w-11 object-contain"
                         />
                       </div>
-                    </div>
+                    </div> -->
                   </div>
                 </div>
         
@@ -1144,7 +1144,8 @@
     personal_message: 'Hey Jacco, gefeliciteerd met het behalen van je rijexamen. Mocht ook wel na 34 pogingen haha!',
     photo: 'vouchers/GHqNiZED0D7B07TNyLJq2TgGYOyY8AVu47S2AKTU.jpg', // 'vouchers/Op3CquqHC9jZ8VjtdvTiFDASdOkJUFnv1Dz0b8h1.webp',
     // photo: '_assets/GHqNiZED0D7B07TNyLJq2TgGYOyY8AVu47S2AKTU.jpg',
-    value: 15, valid_until: '2027-03-19',
+    value: 15,
+    valid_until: '2027-03-19',
     receiver_firstname: 'Jacco',
     receiver_lastname: null,
     giver_firstname: 'Emiel',
@@ -1199,7 +1200,18 @@
       if (qrUrl) {
         const qrImg = document.getElementById('voucherQrImg');
         if (qrImg) qrImg.src = qrUrl;
-        console.log('[Voucher] QR set to:', qrUrl);
+      }
+
+      // Set value and expiry
+      const valueEl = document.getElementById('voucherValue');
+      if (valueEl && voucher.value != null) {
+        const formatted = Number(voucher.value).toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' });
+        valueEl.textContent = formatted;
+      }
+      const validUntilEl = document.getElementById('voucherValidUntil');
+      if (validUntilEl && voucher.valid_until) {
+        const [y, m, d] = voucher.valid_until.split('-');
+        validUntilEl.textContent = `${d}-${m}-${y}`;
       }
     }
   }
