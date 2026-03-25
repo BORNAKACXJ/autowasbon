@@ -20,8 +20,9 @@ export default defineConfig({
     // and must be copied verbatim into the dist folder under their original paths.
     viteStaticCopy({
       targets: [
-        { src: '_assets/_objects',      dest: '_assets' },
-        { src: '_assets/_audio',        dest: '_assets' },
+        { src: '_assets/_objects',             dest: '_assets' },
+        { src: '_assets/_audio',               dest: '_assets' },
+        { src: '_assets/_style/_images',       dest: '_assets/_style' },
         { src: '_assets/GHqNiZED0D7B07TNyLJq2TgGYOyY8AVu47S2AKTU.jpg', dest: '_assets' },
       ],
     }),
