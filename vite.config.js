@@ -11,6 +11,7 @@ export default defineConfig({
         carwash: 'carwash.html',
         flow:    'index.html',
         maak:    'carwash-maak.html',
+        voucher: 'voucher/index.html',
       },
     },
   },
