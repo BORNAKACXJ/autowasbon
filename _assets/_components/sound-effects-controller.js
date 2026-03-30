@@ -6,7 +6,7 @@ import * as THREE from 'three';
 export class SoundEffectsController {
   /**
    * @param {object} sceneSetup - SceneSetup instance (getScene, getCamera)
-   * @param {Array<{ audioPath: string, stationId: string, objectName: string, distance: number, times: number | null }>} config - soundEffects from sound-effects-config
+   * @param {Array<{ audioPath: string, volume?: number, times?: number | null, ... }>} config - soundEffects from sound-effects-config
    */
   constructor(sceneSetup, config = [], backgroundPath = null) {
     this.sceneSetup = sceneSetup;
@@ -86,6 +86,8 @@ export class SoundEffectsController {
       try {
         const audio = new Audio(entry.audioPath);
         audio.preload = 'auto';
+        const v = entry.volume;
+        audio.volume = typeof v === 'number' && !Number.isNaN(v) ? Math.max(0, Math.min(1, v)) : 1;
         this.audioCache.set(index, audio);
         const p = new Promise((resolve, reject) => {
           audio.addEventListener('canplaythrough', () => resolve(), { once: true });

@@ -1,4 +1,19 @@
 /* ===== CAMERA CONTROLLER ===== */
+
+function easeOutQuad(t) {
+  return 1 - (1 - t) * (1 - t);
+}
+
+/** 0→1 bounce settle (overshoot then land). */
+function easeOutBounce(t) {
+  const n1 = 7.5625;
+  const d1 = 2.75;
+  if (t < 1 / d1) return n1 * t * t;
+  if (t < 2 / d1) return n1 * (t -= 1.5 / d1) * t + 0.75;
+  if (t < 2.5 / d1) return n1 * (t -= 2.25 / d1) * t + 0.9375;
+  return n1 * (t -= 2.625 / d1) * t + 0.984375;
+}
+
 export class CameraController {
   constructor(camera, sceneSetup, scrollCheckpoints = null) {
     this.camera = camera;
@@ -42,6 +57,12 @@ export class CameraController {
     
     // Post-pause movement (subtle backward/upward movement after pause)
     this.postPauseMovement = null;
+
+    /** One-shot rotation wobble (e.g. engine start); set via startStartWiggle(options). */
+    this._startWiggle = null;
+
+    /** Start-line Z nudge: ease forward then bounce back; set via startZPrelude(options, onComplete). */
+    this._zPrelude = null;
     
     // Camera control targets
     this.targetCameraX = 0;
@@ -228,34 +249,70 @@ export class CameraController {
       this.updateIntroAnimation();
     }
     
-    // Camera movement - timeline, linear, or exponential
-    if (this.useTimeline && this.timeline && this.timeline.length > 0) {
-      // Handle timeline-based movement
-      this.updateTimelineMovement();
-    } else if (this.useLinearMovement && this.linearStartTime !== null && this.linearDuration > 0) {
-      // Linear movement based on time
-      const elapsed = (Date.now() - this.linearStartTime) / 1000; // elapsed time in seconds
-      const progress = Math.min(1, elapsed / this.linearDuration);
-      
-      // Linear interpolation
-      this.camera.position.z = this.linearStartZ + (this.linearTargetZ - this.linearStartZ) * progress;
-      
-      // If movement is complete, disable linear mode
-      if (progress >= 1) {
-        this.useLinearMovement = false;
-        this.camera.position.z = this.linearTargetZ; // Ensure exact position
-      }
-    } else {
-      // Exponential lerp (default, for scrolling)
-      // In free scroll mode, use faster lerp for immediate response
-      // In checkpoint mode, use checkpoint speed
-      if (this.useCheckpointMode) {
-        const currentSpeed = this.getCurrentCheckpointSpeed();
-        this.camera.position.z += (this.targetZ - this.camera.position.z) * currentSpeed;
+    let zFromStartPrelude = false;
+    if (this._zPrelude) {
+      zFromStartPrelude = true;
+      const now = performance.now();
+      const p = this._zPrelude;
+      if (p.phase === 'out') {
+        const elapsed = now - p.phaseStartTime;
+        const u = Math.min(1, elapsed / p.durationOut);
+        const eased = easeOutQuad(u);
+        this.camera.position.z = p.zBase + p.forwardDelta * eased;
+        this.targetZ = this.camera.position.z;
+        if (u >= 1) {
+          p.phase = 'back';
+          p.phaseStartTime = now;
+          p.zPeak = this.camera.position.z;
+        }
       } else {
-        // Free scroll mode - use faster lerp for immediate response
-        const freeScrollSpeed = 0.4; // Faster lerp for free scrolling (was 0.15)
-        this.camera.position.z += (this.targetZ - this.camera.position.z) * freeScrollSpeed;
+        const elapsed = now - p.phaseStartTime;
+        const u = Math.min(1, elapsed / p.durationBack);
+        const eased = easeOutBounce(u);
+        this.camera.position.z = p.zPeak + (p.zBase - p.zPeak) * eased;
+        this.targetZ = this.camera.position.z;
+        if (u >= 1) {
+          this.camera.position.z = p.zBase;
+          this.targetZ = p.zBase;
+          const cb = p.onComplete;
+          this._zPrelude = null;
+          if (typeof cb === 'function') {
+            queueMicrotask(cb);
+          }
+        }
+      }
+    }
+
+    // Camera movement - timeline, linear, or exponential
+    if (!zFromStartPrelude) {
+      if (this.useTimeline && this.timeline && this.timeline.length > 0) {
+        // Handle timeline-based movement
+        this.updateTimelineMovement();
+      } else if (this.useLinearMovement && this.linearStartTime !== null && this.linearDuration > 0) {
+        // Linear movement based on time
+        const elapsed = (Date.now() - this.linearStartTime) / 1000; // elapsed time in seconds
+        const progress = Math.min(1, elapsed / this.linearDuration);
+        
+        // Linear interpolation
+        this.camera.position.z = this.linearStartZ + (this.linearTargetZ - this.linearStartZ) * progress;
+        
+        // If movement is complete, disable linear mode
+        if (progress >= 1) {
+          this.useLinearMovement = false;
+          this.camera.position.z = this.linearTargetZ; // Ensure exact position
+        }
+      } else {
+        // Exponential lerp (default, for scrolling)
+        // In free scroll mode, use faster lerp for immediate response
+        // In checkpoint mode, use checkpoint speed
+        if (this.useCheckpointMode) {
+          const currentSpeed = this.getCurrentCheckpointSpeed();
+          this.camera.position.z += (this.targetZ - this.camera.position.z) * currentSpeed;
+        } else {
+          // Free scroll mode - use faster lerp for immediate response
+          const freeScrollSpeed = 0.4; // Faster lerp for free scrolling (was 0.15)
+          this.camera.position.z += (this.targetZ - this.camera.position.z) * freeScrollSpeed;
+        }
       }
     }
     
@@ -301,6 +358,22 @@ export class CameraController {
       this.camera.rotation.x += (rotXRad - this.camera.rotation.x) * this.cameraMoveSpeed;
       this.camera.rotation.y += (rotYRad - this.camera.rotation.y) * this.cameraMoveSpeed;
       this.camera.rotation.z += (rotZRad - this.camera.rotation.z) * this.cameraMoveSpeed;
+
+      if (this._startWiggle) {
+        const w = this._startWiggle;
+        const elapsed = Date.now() - w.startTime;
+        const t = elapsed / w.durationMs;
+        if (t >= 1) {
+          this._startWiggle = null;
+        } else {
+          const envelope = Math.sin(Math.PI * t);
+          const micro = Math.sin(t * Math.PI * 10);
+          const shake = envelope * micro;
+          this.camera.rotation.x += w.ampPitch * shake;
+          this.camera.rotation.y += w.ampYaw * shake;
+          this.camera.rotation.z += w.ampRoll * shake;
+        }
+      }
     } else {
       const lookAtDistance = 200;
       this.camera.lookAt(0, 10, this.camera.position.z - 200);
@@ -315,6 +388,44 @@ export class CameraController {
     // Target Z set
   }
   
+  /**
+   * One-time additive rotation wiggle (radians internally). Pass options from getStartWiggleOptions().
+   */
+  startStartWiggle(options) {
+    if (!options) return;
+    this._startWiggle = {
+      startTime: Date.now(),
+      durationMs: Math.max(1, options.durationMs),
+      ampPitch: (options.ampPitchDeg * Math.PI) / 180,
+      ampYaw: (options.ampYawDeg * Math.PI) / 180,
+      ampRoll: (options.ampRollDeg * Math.PI) / 180
+    };
+  }
+
+  /**
+   * Nudge Z slightly into the tunnel (ease-out), then return to start with bounce ease.
+   * While active, overrides normal Z movement. Calls onComplete when back at zBase.
+   * @param {{ forwardDeltaZ?: number, durationOutMs?: number, durationBackMs?: number }} options — forwardDeltaZ negative = forward into wash
+   * @param {() => void} [onComplete]
+   */
+  startZPrelude(options, onComplete) {
+    const o = options || {};
+    const forwardDelta = typeof o.forwardDeltaZ === 'number' ? o.forwardDeltaZ : -3.5;
+    const durationOut = Math.max(1, o.durationOutMs ?? 420);
+    const durationBack = Math.max(1, o.durationBackMs ?? 780);
+    this.introComplete = true;
+    this._zPrelude = {
+      zBase: this.camera.position.z,
+      forwardDelta,
+      durationOut,
+      durationBack,
+      phase: 'out',
+      phaseStartTime: performance.now(),
+      onComplete: typeof onComplete === 'function' ? onComplete : null
+    };
+    this.targetZ = this.camera.position.z;
+  }
+
   setLinearTargetZ(z, durationSeconds) {
     // Set linear movement to target Z over duration
     this.targetZ = Math.max(this.minZ, Math.min(this.maxZ, z));

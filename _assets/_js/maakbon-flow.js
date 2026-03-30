@@ -9,6 +9,8 @@ import { loadStep3Lottie, loadStep4Lottie, loadSopPreviewLottie, getStep3LottieA
 const WENS_BASE = '_assets/_style/_images/_wens/';
 
 const STEP7_SUMMARY = 7;
+/** Payment failed screen (between Mollie and success); numeric id avoids parseInt clash with section 6. */
+const SECTION_PAYMENT_FAILED = 65;
 
 export function createFlowState() {
 	let currentSection = 1;
@@ -48,15 +50,31 @@ export function createFlowState() {
 			if (adresWrap && deliverySop) {
 				adresWrap.classList.toggle('hidden', deliverySop.value !== 'post');
 			}
+			// const mobielHint = document.getElementById('ontvangerMobielHint');
+			// if (mobielHint && deliverySop) {
+			// 	mobielHint.textContent =
+			// 		deliverySop.value === 'post'
+			// 			? 'Optioneel bij verzending via de post.'
+			// 			: 'Verplicht bij digitaal versturen (e-mail / WhatsApp).';
+			// }
 		}
 		if (sectionNum === 5) {
 			// Email confirm: show emails from section 4 form
+			const deliverySop = document.getElementById('deliverySop');
 			const ontvangerEl = document.querySelector('input[name="ontvanger_email"]');
+			const mobielEl = document.querySelector('input[name="ontvanger_mobiel"]');
 			const zenderEl = document.querySelector('input[name="zender_email"]');
 			const d1 = document.getElementById('emailConfirmOntvanger');
 			const d2 = document.getElementById('emailConfirmZender');
+			const phoneWrap = document.getElementById('phoneConfirmOntvangerWrap');
+			const phoneConfirm = document.getElementById('phoneConfirmOntvanger');
 			if (d1 && ontvangerEl) d1.textContent = ontvangerEl.value.trim() || '—';
 			if (d2 && zenderEl) d2.textContent = zenderEl.value.trim() || '—';
+			const isDigitaal = deliverySop?.value === 'digitaal';
+			if (phoneWrap) phoneWrap.classList.toggle('hidden', !isDigitaal);
+			if (phoneConfirm && mobielEl && isDigitaal) {
+				phoneConfirm.textContent = mobielEl.value.trim() || '—';
+			}
 		}
 		if (sectionNum === 7) {
 			const sendWhen = document.getElementById('sendWhen')?.value || 'direct';
@@ -65,7 +83,7 @@ export function createFlowState() {
 				if (sendWhen === 'datum') {
 					msgEl.textContent = 'Yes! Je autowasbon is ingepland voor verzending!';
 				} else {
-					msgEl.textContent = 'YES! JOUW AUTOWASBON VERSTUURD EN KLAAR VOOR GEBRUIK!';
+					msgEl.textContent = 'Yes! JOUW AUTOWASBON IS ONDERWEG!';
 				}
 			}
 		}
@@ -88,7 +106,7 @@ export function createFlowState() {
 				if (seconds <= 0) {
 					if (mollieTimer) clearInterval(mollieTimer);
 					mollieTimer = null;
-					api.showSection(7);
+					api.showSection(SECTION_PAYMENT_FAILED);
 				}
 			}, 1000);
 		}

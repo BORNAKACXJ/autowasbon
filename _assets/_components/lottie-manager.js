@@ -542,6 +542,30 @@ export class LottieManager {
     await this.applyLottieToLayer(allModels, 'lottie_back', lottieConfig.back);
   }
 
+  /** True for the message-station wens texture (restart when entering wasstraat). */
+  _isUserWensLayer(layerName) {
+    return layerName === 'user__wens' || (layerName && String(layerName).includes('user__wens'));
+  }
+
+  /**
+   * Jump a registered Lottie texture to frame 0 and play (does not change `started`).
+   * Used when the wasstraat timeline starts while the camera is still outside the Z-trigger zone,
+   * so preview autoplay restarts from the beginning without tripping the "outside zone" pause branch.
+   */
+  restartLottieLayerFromFrameZero(layerName) {
+    this.lottieAnimations.forEach((lottieData) => {
+      if (!lottieData.anim || lottieData.layerName !== layerName) return;
+      const anim = lottieData.anim;
+      lottieData.pausedAtFrame = false;
+      lottieData.paused = false;
+      if (lottieData.pauseFrame !== undefined && lottieData.resumeZ !== null) {
+        anim.setLoop(false);
+      }
+      anim.goToAndStop(0, true);
+      anim.play();
+    });
+  }
+
   // Function to update Lottie animations based on camera Z position or camera distance
   // camera - optional; required for distance-based triggers (e.g. triggerDistance)
   updateLottieTriggers(cameraZ, camera = null) {
@@ -674,6 +698,12 @@ export class LottieManager {
                                  (lottieData.completed === true);
         
         if (shouldBePlaying && !started && !shouldNotRestart) {
+          // user__wens: full restart when entering the wasstraat (Z crosses startZ); preview may have autoplayed for minutes
+          if (this._isUserWensLayer(layerName)) {
+            anim.goToAndStop(0, true);
+            lottieData.pausedAtFrame = false;
+            lottieData.paused = false;
+          }
           // Start the animation
           anim.play();
           // Set looping based on times property and pause/resume logic

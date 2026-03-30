@@ -1798,6 +1798,10 @@
       if (window.soundEffectsController && typeof window.soundEffectsController.startBackgroundMusic === 'function') {
         window.soundEffectsController.startBackgroundMusic();
       }
+
+      if (window.checkpointController && typeof window.checkpointController.scheduleStartSequenceAfterStartClick === 'function') {
+        window.checkpointController.scheduleStartSequenceAfterStartClick();
+      }
       
       // Hide SVG after first click
       newButton.classList.add('clicked');
@@ -1836,17 +1840,7 @@
         playStoplicht(stoplichtR);
       }
       
-      // Start timeline after 3.5 seconds
-      setTimeout(() => {
-        if (window.checkpointController) {
-          const success = window.checkpointController.goToNextPoint(true);
-          if (success) {
-            console.log('Started following points array sequentially');
-          } else {
-            console.log('Cannot start - already at last checkpoint or animation in progress');
-          }
-        }
-      }, 4000);
+      // Timeline starts after startZPrelude (see checkpoint-controller scheduleStartSequenceAfterStartClick)
     };
     
     newButton.addEventListener('click', handleButtonClick);
