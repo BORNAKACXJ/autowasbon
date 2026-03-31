@@ -1,5 +1,5 @@
 // Checkpoint Controller - Manages navigation for both scroll and dashboard clicks
-import { checkpoints, checkpointConfig, getPoints } from './checkpoint-config.js';
+import { checkpoints, checkpointConfig, getPoints, getStartWiggleOptions } from './checkpoint-config.js';
 
 export class CheckpointController {
   constructor(cameraController) {
@@ -8,6 +8,8 @@ export class CheckpointController {
     this.currentCheckpointIndex = 0;
     this.isAnimating = false;
     this.currentAnimationFrame = null;
+    this._startRideAfterClickTimeoutId = null;
+    this._wiggleAfterStartTimeoutId = null;
     
     // Auto-advance timer (4 seconds of no interaction at checkpoint)
     this.autoAdvanceTimer = null;
@@ -680,6 +682,54 @@ export class CheckpointController {
     return true;
   }
   
+  /**
+   * After Start: optional rotation wiggle at startWiggle.delayAfterStartMs; separately, after
+   * startZPrelude.delayAfterStartMs, Z prelude (if enabled) then goToNextPoint.
+   * Clears pending timers if Start is clicked again before they elapse.
+   */
+  scheduleStartSequenceAfterStartClick() {
+    const zp = checkpointConfig.settings?.startZPrelude;
+    const rideDelay = zp?.delayAfterStartMs ?? 3000;
+    const wcfg = checkpointConfig.settings?.startWiggle;
+    const wiggleDelay = wcfg?.delayAfterStartMs ?? 2500;
+
+    if (this._startRideAfterClickTimeoutId != null) {
+      clearTimeout(this._startRideAfterClickTimeoutId);
+      this._startRideAfterClickTimeoutId = null;
+    }
+    if (this._wiggleAfterStartTimeoutId != null) {
+      clearTimeout(this._wiggleAfterStartTimeoutId);
+      this._wiggleAfterStartTimeoutId = null;
+    }
+
+    const wiggleOpts = getStartWiggleOptions();
+    if (wiggleOpts && typeof this.cameraController?.startStartWiggle === 'function') {
+      this._wiggleAfterStartTimeoutId = setTimeout(() => {
+        this._wiggleAfterStartTimeoutId = null;
+        this.cameraController.startStartWiggle(wiggleOpts);
+      }, wiggleDelay);
+    }
+
+    this._startRideAfterClickTimeoutId = setTimeout(() => {
+      this._startRideAfterClickTimeoutId = null;
+      const afterPrelude = () => {
+        this.goToNextPoint(true);
+      };
+      if (zp && zp.enabled !== false && typeof this.cameraController?.startZPrelude === 'function') {
+        this.cameraController.startZPrelude(
+          {
+            forwardDeltaZ: zp.forwardDeltaZ,
+            durationOutMs: zp.durationOutMs,
+            durationBackMs: zp.durationBackMs
+          },
+          afterPrelude
+        );
+      } else {
+        afterPrelude();
+      }
+    }, rideDelay);
+  }
+
   /**
    * Animate camera using timeline configuration
    * When jumping to a checkpoint, starts from that checkpoint's position in the timeline

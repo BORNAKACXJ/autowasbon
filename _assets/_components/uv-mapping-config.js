@@ -29,7 +29,7 @@ export function applyUVMappings(textureManager, SOAP_THEME, SOAP_THEMES, station
 
   // user__wens: Apply Lottie animation as texture (replaces layer__wens.png)
   // Use default from wensen config; updates when user selects a wens in maak-bon
-  const defaultWensLottie = WENSEN.length > 0 ? WENSEN[0].lottie : 'https://lottie.host/f1d0e197-55d8-4b0c-8670-31287c95dd0e/pFkebShNjk.lottie';
+  const defaultWensLottie = WENSEN.length > 0 ? WENSEN[4].lottie : 'https://lottie.host/f1d0e197-55d8-4b0c-8670-31287c95dd0e/pFkebShNjk.lottie';
   setTimeout(() => {
     textureManager.applyLottieTexture('user__wens', defaultWensLottie, 'x', {
       ...USER_WENS_LOTTIE_OPTIONS

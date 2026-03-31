@@ -523,6 +523,11 @@ gaan we aan de slag!
 							<label class="block text-white/80 text-md mb-1">Email</label>
 							<input type="email" name="ontvanger_email" autocomplete="shipping email" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Email">
 						</div>
+						<div>
+							<label class="block text-white/80 text-md mb-1">Mobiel nummer</label>
+							
+							<input type="tel" name="ontvanger_mobiel" autocomplete="shipping tel" inputmode="tel" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="06 … of +31 …">
+						</div>
 						<div id="ontvangerAdresWrap" class="hidden space-y-4">
 							<div class="flex gap-4">
 								<div class="flex-1"><label class="block text-white/80 text-md mb-1">Straat</label><input type="text" name="ontvanger_straat" autocomplete="shipping street-address" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Straat"></div>
@@ -556,6 +561,10 @@ gaan we aan de slag!
 						<p class="text-gray-500 text-md mb-1">Email van de ontvanger</p>
 						<p id="emailConfirmOntvanger" class="font-semibold text-2xl break-all">—</p>
 					</div>
+					<div id="phoneConfirmOntvangerWrap" class="hidden">
+						<p class="text-gray-500 text-md mb-1">Mobiel nummer ontvanger</p>
+						<p id="phoneConfirmOntvanger" class="font-semibold text-2xl break-all">—</p>
+					</div>
 					<div>
 						<p class="text-gray-500 text-md mb-1">Jouw e-mail</p>
 						<p id="emailConfirmZender" class="font-semibold text-2xl break-all">—</p>
@@ -573,6 +582,23 @@ gaan we aan de slag!
 				<div class="bg-gray-700 rounded-2xl p-12 flex flex-col items-center justify-center min-h-[200px] gap-6">
 					<p class="text-white font-bold text-2xl">MOLLIE</p>
 					<p class="text-white text-xl">Betaling verwerken over <span id="mollieCountdown" class="font-bold">5</span> seconden...</p>
+				</div>
+			</section>
+
+			<!-- Section 6-fail: Betaling mislukt (data-section 65 — unique id for flow JS) -->
+			<section id="section-6-fail" class="flow-section mx-auto max-w-[460px]" data-section="65">
+				<div class="flex flex-col items-center justify-center text-center px-4 py-8 min-h-[280px]" style="translate: none; rotate: none; scale: none; transform: translate(0px, 0px); opacity: 1;">
+					<img src="_assets/_style/_images/icon__error.svg" alt="" class="w-[128px] h-[128px] mb-6 object-contain" width="120" height="120">
+					<h2 class="section__title  font__wash text-white mb-4 max-w-[320px]">
+						Betaling<br> is mislukt
+					</h2>
+					<p class="text-white text-2xl leading-none mb-8 max-w-[340px] text-balance">
+						Dat ging niet helemaal vlekkenloos.. er is iets misgegaan met je betaling
+					</p>
+					<button type="button" id="btnPaymentRetry" class="btn__main mb-5 max-w-[320px] pr-6" data-just-validate-fallback-disabled="false">
+						Opnieuw proberen
+					</button>
+					<p class="font-mono text-xs text-white/60 mt-8">Error code: 48392</p>
 				</div>
 			</section>
 
@@ -630,8 +656,19 @@ gaan we aan de slag!
 
 			<!-- Section 9: Factuur gemaakt -->
 			<section id="section-9" class="flow-section mx-auto max-w-[460px]" data-section="9">
-				<h2 class="section__title section__title--small font__wash text-white mb-6 text-center">Factuur is gemaakt!</h2>
-				<p class="text-center text-white text-xl mb-8">Gestuurd naar je email.</p>
+				<div class="flex flex-col items-center justify-center text-center px-4 py-8 min-h-[280px]" style="translate: none; rotate: none; scale: none; transform: translate(0px, 0px); opacity: 1;">
+					<img src="_assets/_style/_images/icon__success.svg" alt="" class="w-[128px] h-[128px] mb-6 object-contain" width="120" height="120">
+					<h2 class="section__title  font__wash text-white mb-4 max-w-[320px]">
+						Factuur is <br />verstuurd!
+					</h2>
+					<p class="text-white text-2xl leading-none mb-8 max-w-[340px] text-balance">
+						Je factuur is onderweg, we zorgen dat die elk moment fris en verzorgd in je inbox staat.
+					</p>
+					<button type="button" class="btn__main mb-5 max-w-[320px] pr-6 text-white bg-black">
+						Ga naar Autowasbon.nl
+					</button>
+					
+				</div>
 			</section>
 		</form>
 	</main>

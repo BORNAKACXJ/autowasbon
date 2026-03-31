@@ -673,6 +673,47 @@
     visibility: hidden;
   }
 
+  .btn__main {
+			padding: 10px 24px;
+    padding-right: 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 24px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    line-height: 1;
+    background-color: #FACC15;
+    color: black;
+	filter: drop-shadow(0 4px 0px rgba(0,0,0,1));
+  transition-duration: 0.1s;
+		}
+
+    .btn__main:hover {
+      /* background-color: #bd9a10; */
+			transform: translateY(5px);
+			filter: drop-shadow(0 0px 0px rgba(0,0,0,1));
+    }
+
+		.btn__main:disabled {
+			background-color: #6b7280;
+			cursor: not-allowed;
+			opacity: 0.9;
+		}
+
+		.btn__main:active {
+			background-color: #bd9a10;
+			transform: translateY(4px);
+			filter: drop-shadow(0 0px 1px rgba(0,0,0,1));
+		}
+
 @media screen and (max-width: 768px){
   .ratio-toggle-btn {
     display: none;
@@ -992,95 +1033,168 @@
 
         <div class="min-h-screen p-6 flex justify-center" style="z-index: 100000;">
 
-          <div class="btn__flip-card absolute top-[16px] right-[16px] text-[16px] text-black bg-white rounded-full p-4 pb-3 cursor-pointer hover:bg-gray-100 transition-colors" id="btnFlipCard">
+          <div class="btn__flip-card absolute md:top-[16px] top-[8px] md:right-[16px] right-[8px] text-[16px] text-black bg-white rounded-full p-2 md:p-4 md:pb-3 pb-2 cursor-pointer hover:bg-gray-100 transition-colors" id="btnFlipCard">
             <i class="fa-sharp fa-solid fa-arrow-rotate-left"></i>
           </div>
           <!-- Outer border like the screenshot -->
-          <div class="w-[300px] max-w-full pt-4">
-            <!-- Card -->
-            <div class="relative">
-              <!-- Top (QR area) -->
-              <div class="">
-                <!-- QR frame -->
-                <div class="mx-auto w-[240px] max-w-full rounded-2xl p-4 bg-white p-8 rounded shadow-lg">
-                  <div class="relative aspect-square w-full bg-white">
-                    <!-- Replace this with a real QR image -->
-                    <img
-                      id="voucherQrImg"
-                      src="_assets/_style/_images/random_qr.png"
-                      alt="QR code"
-                      class="w-full object-contain"
-                    />
-        
-                    <!-- Center logo overlay -->
-                    <!-- <div class="absolute inset-0 flex items-center justify-center">
-                      <div class="bg-white ratio-1-1 p-2">
+   
+            
+              <div class="w-[300px] max-w-full pt-10 md:pt-4">
+            
+                <!-- Title -->
+                <h1 class="text-black font__wash uppercase text-4xl tracking-[0.02em] leading-[0.9] rotate-[-1deg] text-center mb-4">
+                  Scan jouw QR-code <br />bij de wasstraat
+                </h1>
+            
+                <!-- Card -->
+                <div class="bg-white rounded-2xl p-5">
+            
+                  <!-- QR frame -->
+                  <div class="mx-auto max-w-full rounded-2xl p-4 bg-white p-8 rounded shadow-lg">
+                    <div class="relative aspect-square w-full bg-white">
+                      <img
+                        src="_assets/_style/_images/random_qr.png"
+                        alt="QR code"
+                        class="w-full object-contain"
+                      />
+                      <div class="absolute bg-white inset-0 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-[64px] h-[64px] p-0.5">
+                        
+                          <img
+                            src="_assets/_style/_images/logo__main--icon-clean.svg"
+                            alt="Logo"
+                            class="w-full h-full object-contain"
+                          />
                        
-                        <img
-                          src="_assets/_style/_images/logo-main.svg"
-                          alt="Logo"
-                          class="h-11 w-11 object-contain"
-                        />
                       </div>
                     </div> -->
                   </div>
-                </div>
-        
-                <!-- Value / expiry -->
-                <div class="mt-6 grid grid-cols-2 text-lg">
-                  <div class="text-slate-900 text-xl">Waarde:</div>
-                  <div id="voucherValue" class="text-right font-semibold text-blue-700 text-xl ">€10</div>
-        
-                  <div class="text-slate-900 text-xl">Geldig tot:</div>
-                  <div id="voucherValidUntil" class="text-right font-semibold text-blue-700 text-xl">15-01-2026</div>
-                </div>
-        
-                <!-- Buttons: only visible on mobile -->
-                <div class="mt-6 md:hidden">
-                  <button
-                    id="btnSaveToWallet"
-                    class="h-12 rounded-lg border-2 border-blue-600 text-blue-700 font-medium hover:bg-blue-50 w-full font-semibold uppercase"
-                    type="button"
-                  >
-                  <i class="fa-sharp fa-solid fa-wallet"></i> Sla op in wallet
-                  </button>
-                </div>
-        
-                <!-- Divider line -->
-                <div class="mt-6 h-0.5 w-full bg-blue-600"></div>
-              </div>
-        
-              <!-- Bottom instructions block -->
-              <div class="relative">
-                <!-- Left vertical code -->
-                
-        
-                <div class="mx-auto w-full text-slate-900 mt-4">
-                  <p class="text-sm font-medium">
-                    Instructie carwash indien gebruik gemaakt wordt van Totalwash:
-                  </p>
-        
-                  <ul class=" text-sm list-disc list-inside space-y-2 mt-4 mb-4">
-                    <li>
-                      Kies product (wasprogramma),
-                      Kies(deel)betaling, Kies
-                      <span class="underline decoration-red-500 decoration-2">Autowasbon</span>,
-                      scan NU de QR-code
-                    </li>
-                    <li>
-                      Wordt een geldige QR niet herkend? Dan is deze reeds gebruikt of de kassa invoer onjuist
-                    </li>
-                    <li>
-                      Klik hier voor de gebruiksvoorwaarden
-                    </li>
-                  </ul>
-                </div>
-
-                <div class="flex items-center flex-col">
-                  <div id="voucherCode" class="text-lg tracking-wider text-slate-900 text-center">
-                    1026733-134321 9297351039
+            
+                  <!-- Value / expiry -->
+                  <div class="mt-5 grid grid-cols-2 gap-y-2 md:gap-y-0 px-2">
+                    <div class="text-slate-600 text-[18px] md:text-md font-medium">Waarde:</div>
+                    <div class="text-right font-bold text-black text-4xl">€10</div>
+            
+                    <div class="text-slate-600 text-[18px] md:text-md font-medium">Geldig tot:</div>
+                    <div class="text-right font-medium text-black text-[18px] md:text-md">15 Mei 2026</div>
                   </div>
-               
+            
+                  <!-- Wallet button -->
+                  <div class="mt-8 md:mt-5">
+                    <button
+                      type="button"
+                      class="btn__main w-full"
+                    >
+                      <i class="fa-sharp fa-solid fa-wallet"></i>
+                      Sla op in wallet
+                    </button>
+                  </div>
+            
+                </div>
+            
+                <!-- Waslocaties external button -->
+                <div class="mt-6 md:mt-3">
+                  <a
+                    href="https://www.autowasbon.nl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn__main w-full bg-[#2C54F4] text-white"
+                  >
+                    Zoek waslocaties
+                    <i class="fa-sharp fa-arrow-up-right-from-square text-sm opacity-95 "></i>
+                  </a>
+                </div>
+            
+                <!-- 2-tab section -->
+                <div id="wasbon-detail-tabs" class="mt-4 md:mt-3 mb-8 md:mb-2">
+            
+                  <!-- Tab buttons -->
+                  <div
+                    class="flex rounded-md border border-black overflow-hidden"
+                    role="tablist"
+                    aria-label="Autowasbon informatie"
+                  >
+                    <button
+                      type="button"
+                      role="tab"
+                      id="wasbon-tab-how"
+                      aria-controls="wasbon-tab-panel-how"
+                      aria-selected="false"
+                      tabindex="-1"
+                      class="wasbon-tab flex-1 py-1 text-base font-semibold uppercase tracking-wide transition-colors"
+                      data-tab-index="0"
+                    >
+                      Hoe werkt het?
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      id="wasbon-tab-info"
+                      aria-controls="wasbon-tab-panel-info"
+                      aria-selected="false"
+                      tabindex="-1"
+                      class="wasbon-tab flex-1 py-1 text-base font-semibold uppercase tracking-wide transition-colors border-l border-black"
+                      data-tab-index="1"
+                    >
+                      Info
+                    </button>
+                  </div>
+            
+                  <!-- Tab panel: Hoe werkt het? -->
+                  <div
+                    role="tabpanel"
+                    id="wasbon-tab-panel-how"
+                    aria-labelledby="wasbon-tab-how"
+                    hidden
+                    class="mt-3 rounded-xl border border-slate-100 bg-white p-4 space-y-3 mx-1"
+                  >
+                    <p class="text-[20px] md:text-lg font-semibold leading-none text-black">Instructie carwash (Totalwash)</p>
+                    <ol class="text-[20px] md:text-md text-slate-900 list-decimal list-inside space-y-3 leading-snug">
+                      <li>Kies je product (wasprogramma).</li>
+                      <li>
+                        Kies (deel)betaling, kies
+                        <span class="underline decoration-red-500 decoration-2">Autowasbon</span>
+                        en scan direct de QR-code.
+                      </li>
+                      <li>
+                        Wordt een geldige QR niet herkend? Dan is deze reeds gebruikt of de kassa-invoer is onjuist.
+                      </li>
+                    </ol>
+                  </div>
+            
+                  <!-- Tab panel: Info -->
+                  <div
+                    role="tabpanel"
+                    id="wasbon-tab-panel-info"
+                    aria-labelledby="wasbon-tab-info"
+                    hidden
+                    class="mt-3 rounded-xl border border-slate-100 bg-white p-4 space-y-8 mx-1"
+                  >
+                    <div>
+                      <p class="text-[20px] md:text-lg font-semibold text-slate-900 mb-1">Barcodenummers</p>
+                      <p class="font-mono text-sm tracking-wider text-slate-900 break-all">
+                        1026733-134321 / 9297351039
+                      </p>
+                    </div>
+            
+                    <div class="flex justify-center pb-8">
+                      <img
+                        src="_assets/_style/_images/barcode.png"
+                        alt="Streepjescode"
+                        class="w-full max-w-[220px] object-cover mix-blend-multiply"
+                      />
+                    </div>
+            
+                    <a
+                      href="https://www.autowasbon.nl"
+                      class="text-[18px] md:text-md text-slate-900 font-medium underline underline-offset-2 hover:text-blue-800"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Gebruiksvoorwaarden <i class="fa-sharp fa-solid fa-arrow-up-right-from-square text-sm opacity-95 "></i>
+                    </a>
+                  </div>
+            
+                </div>
 
                 <img
                           id="voucherBarcodeImg"
@@ -1093,7 +1207,47 @@
 
 
               </div>
-            </div>
+            
+              <script>
+                (function () {
+                  var root = document.getElementById('wasbon-detail-tabs');
+                  if (!root) return;
+                  var tabs = root.querySelectorAll('.wasbon-tab');
+                  var panels = [
+                    document.getElementById('wasbon-tab-panel-how'),
+                    document.getElementById('wasbon-tab-panel-info'),
+                  ];
+            
+                  function setActiveTab(index) {
+                    var hasActive = typeof index === 'number' && index >= 0;
+                    tabs.forEach(function (tab, i) {
+                      var on = hasActive && i === index;
+                      tab.setAttribute('aria-selected', on ? 'true' : 'false');
+                      tab.tabIndex = on ? 0 : -1;
+                      tab.classList.toggle('bg-black', on);
+                      tab.classList.toggle('text-white', on);
+                      tab.classList.toggle('bg-[##f5f5f5]', !on);
+                      tab.classList.toggle('text-slate-600', !on);
+                    });
+                    panels.forEach(function (panel, i) {
+                      if (!panel) return;
+                      hasActive && i === index
+                        ? panel.removeAttribute('hidden')
+                        : panel.setAttribute('hidden', '');
+                    });
+                  }
+            
+                  tabs.forEach(function (tab, i) {
+                    tab.addEventListener('click', function () {
+                      setActiveTab(tab.getAttribute('aria-selected') === 'true' ? null : i);
+                    });
+                  });
+            
+                  setActiveTab(null);
+                })();
+              </script>
+            
+      
           </div>
         </div>
           </div>
@@ -1611,7 +1765,7 @@
     container.innerHTML = '';
     
     // Start-button Lottie URL: apply contain styling only to this one
-    const START_BUTTON_LOTTIE_URL = 'https://lottie.host/2e725065-e904-49db-b6bf-d1c935cd6ad1/RGeGDbsxaX.lottie';
+    const START_BUTTON_LOTTIE_URL = 'https://lottie.host/e80ac63e-0eaa-4031-bc9b-55d2b3a40ab2/scnSwq2reo.lottie';
     const isStartButtonLottie = (url && url.indexOf('RGeGDbsxaX.lottie') !== -1) || url === START_BUTTON_LOTTIE_URL;
     if (isStartButtonLottie) {
       container.classList.add('lottie-container--start-animation');
@@ -1871,6 +2025,10 @@
       if (window.soundEffectsController && typeof window.soundEffectsController.startBackgroundMusic === 'function') {
         window.soundEffectsController.startBackgroundMusic();
       }
+
+      if (window.checkpointController && typeof window.checkpointController.scheduleStartSequenceAfterStartClick === 'function') {
+        window.checkpointController.scheduleStartSequenceAfterStartClick();
+      }
       
       // Hide SVG after first click
       newButton.classList.add('clicked');
@@ -1909,17 +2067,7 @@
         playStoplicht(stoplichtR);
       }
       
-      // Start timeline after 3.5 seconds
-      setTimeout(() => {
-        if (window.checkpointController) {
-          const success = window.checkpointController.goToNextPoint(true);
-          if (success) {
-            console.log('Started following points array sequentially');
-          } else {
-            console.log('Cannot start - already at last checkpoint or animation in progress');
-          }
-        }
-      }, 4000);
+      // Timeline starts after startZPrelude (see checkpoint-controller scheduleStartSequenceAfterStartClick)
     };
     
     newButton.addEventListener('click', handleButtonClick);

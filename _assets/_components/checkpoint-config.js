@@ -7,13 +7,35 @@
 //   - points: Camera movement points between checkpoints (animated transitions)
 //     Each point has: z, duration, easing, pause (optional pause duration)
 //   
+//   - settings.startZPrelude: After Start, wait delayAfterStartMs, then Z nudge forward + bounce back, then timeline.
+//   - settings.startWiggle: Optional rotation wiggle delayAfterStartMs after Start (if enabled).
+//   
 //   - labels: Z-position to name mapping (what users see in dash__text--slider)
 //     Each label has: z, name
 
 export const checkpointConfig = {
   settings: {
     startZ: 0,
-    endZ: -250
+    endZ: -250,
+    /**
+     * After Start: wait, then move Z slightly into the wash (ease-out), bounce back, then goToNextPoint runs.
+     */
+    startZPrelude: {
+      enabled: false,
+      delayAfterStartMs: 3100,
+      forwardDeltaZ: 0.2,
+      durationOutMs: 420,
+      durationBackMs: 800
+    },
+    /** Rotation wiggle: runs delayAfterStartMs after Start (independent of startZPrelude / goToNextPoint). */
+    startWiggle: {
+      enabled: true,
+      delayAfterStartMs: 2900,
+      durationMs: 320,
+      ampPitchDeg: 0.1,
+      ampYawDeg: 0.2,
+      ampRollDeg: 0.2
+    }
   },
   
   // Checkpoints: Main navigation points for scrolling and button clicks
@@ -148,6 +170,18 @@ export const checkpointConfig = {
 function isMobileDevice() {
   return /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
          (window.innerWidth <= 768 && window.matchMedia('(pointer: coarse)').matches);
+}
+
+/** Options for CameraController.startStartWiggle, or null if disabled. */
+export function getStartWiggleOptions() {
+  const w = checkpointConfig.settings?.startWiggle;
+  if (!w || w.enabled === false) return null;
+  return {
+    durationMs: w.durationMs ?? 520,
+    ampPitchDeg: w.ampPitchDeg ?? 0.55,
+    ampYawDeg: w.ampYawDeg ?? 0.4,
+    ampRollDeg: w.ampRollDeg ?? 0.6
+  };
 }
 
 // Helper function to get the appropriate points array (mobile or desktop)

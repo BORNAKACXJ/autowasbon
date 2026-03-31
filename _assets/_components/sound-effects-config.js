@@ -13,6 +13,7 @@ export const backgroundAudio = '_assets/_audio/carwash-loop-2.mp3';
  * - objectName: string — exact name of the layer, group, or mesh in that station (e.g. 'gate__right', 'user__media')
  * - distance: number — trigger when camera is within this distance (world units) of the object
  * - times: number | null — how many times to play total (1 = once, 3 = three times, null = every time camera enters range)
+ * - volume: number (optional) — 0…1, HTML5 Audio volume (default 1)
  * 
  * Z-INDEX-TRIGGERED (camera z position-based):
  * - audioPath: string — path to the audio file
@@ -21,6 +22,7 @@ export const backgroundAudio = '_assets/_audio/carwash-loop-2.mp3';
  * - startZ: number — start of z range (inclusive)
  * - endZ: number — end of z range (exclusive)
  * - times: number | null — how many times to play (1 = once, null = every time camera enters range)
+ * - volume: number (optional) — 0…1 (default 1)
  * 
  * Note: Use either distance-based OR z-based triggers, not both in the same entry.
  */
@@ -30,7 +32,7 @@ export const soundEffects = [
     audioPath: '_assets/_audio/bleh.wav',
     stationId: 'message__wens',
     objectName: 'user__wens',
-    distance: 25,
+    distance: 35,
     times: 1
   },
 
@@ -52,9 +54,10 @@ export const soundEffects = [
 
   // Example: z-index triggered - play once when camera reaches exact z position
   {
-    audioPath: '_assets/_audio/water.mp3',
-    triggerZ: -87,
-    times: 1
+    audioPath: '_assets/_audio/water__car--inside.wav',
+    triggerZ: -60,
+    times: 1,
+    volume: 0.60
   },
   {
     audioPath: '_assets/_audio/soap.mp3',
@@ -63,8 +66,9 @@ export const soundEffects = [
   },
   {
     audioPath: '_assets/_audio/blower.mp3',
-    triggerZ: -200,
-    times: 1
+    triggerZ: -180,
+    times: 1,
+    volume: 0.80
   },
 
   // Example: z-index range - play when camera is within z range

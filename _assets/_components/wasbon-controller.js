@@ -536,6 +536,9 @@ export class WasbonController {
    */
   startTimelineToFirstCheckpoint() {
     if (!this.cameraController || !this.sceneSetup) return;
+    if (window.lottieManager && typeof window.lottieManager.restartLottieLayerFromFrameZero === 'function') {
+      window.lottieManager.restartLottieLayerFromFrameZero('user__wens');
+    }
     const points = typeof window !== 'undefined' && window.innerWidth <= 768 && checkpointConfig.pointsMobile?.length
       ? checkpointConfig.pointsMobile
       : checkpointConfig.points;

@@ -32,6 +32,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 		if (valid) state.goNext();
 	});
 
+	document.getElementById('btnPaymentRetry')?.addEventListener('click', () => state.showSection(7));
+
 	document.getElementById('btnMaakFactuur')?.addEventListener('click', async () => {
 		const valid = await flowValidation.revalidate();
 		if (valid) {

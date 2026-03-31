@@ -15,6 +15,36 @@ function isPostDelivery() {
 	return el && el.value === 'post';
 }
 
+function isDigitaalDelivery() {
+	const el = document.getElementById('deliverySop');
+	return el && el.value === 'digitaal';
+}
+
+/** Require value when section 4 is active and delivery is digitaal (WhatsApp / e-mail). */
+function whenSection4Digitaal(message = 'Verplicht') {
+	return {
+		validator: (value) => {
+			if (!isSectionActive('section-4') || !isDigitaalDelivery()) return true;
+			return (value || '').trim().length > 0;
+		},
+		errorMessage: message
+	};
+}
+
+/** Loose phone check when digitaal and value present. */
+function phoneWhenSection4Digitaal(message = 'Vul een geldig mobiel nummer in') {
+	return {
+		validator: (value) => {
+			if (!isSectionActive('section-4') || !isDigitaalDelivery()) return true;
+			const v = (value || '').trim();
+			if (v.length === 0) return true;
+			const digits = v.replace(/\D/g, '');
+			return digits.length >= 8 && digits.length <= 15;
+		},
+		errorMessage: message
+	};
+}
+
 /** Return a validator that requires value only when section 4 is active. */
 function whenSection4(message = 'Verplicht') {
 	return {
@@ -93,6 +123,10 @@ export function initFlowValidation() {
 	validator.addField('input[name="ontvanger_email"]', [
 		whenSection4('Vul het e-mailadres van de ontvanger in'),
 		emailWhenSection4('Vul een geldig e-mailadres in')
+	]);
+	validator.addField('input[name="ontvanger_mobiel"]', [
+		whenSection4Digitaal('Vul het mobiele nummer van de ontvanger in'),
+		phoneWhenSection4Digitaal('Vul een geldig mobiel nummer in')
 	]);
 	validator.addField('input[name="ontvanger_straat"]', [whenSection4Post('Vul de straat in')]);
 	validator.addField('input[name="ontvanger_huisnummer"]', [whenSection4Post('Vul het huisnummer in')]);
