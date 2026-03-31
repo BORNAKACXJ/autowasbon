@@ -11,8 +11,8 @@
 	<script src="https://kit.fontawesome.com/f041d734e9.js" crossorigin="anonymous"></script>
 	<script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
 	<title>National Autowasbon - Persoonlijke Autowasbon samenstellen</title>
-  <script type="module" crossorigin src="/assets/flow-CgRDGXTP.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/wensen-config-D9_A6F6S.js">
+  <script type="module" crossorigin src="/assets/flow-BM3DO884.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/wensen-config-D-CaiPya.js">
   <link rel="stylesheet" crossorigin href="/assets/wensen-config-DLpicLy5.css">
   <link rel="stylesheet" crossorigin href="/assets/flow-BobEAgNX.css">
 </head>
@@ -520,11 +520,15 @@ gaan we aan de slag!
 					<h3 class="text-white font-bold uppercase mb-4 text-2xl">GEGEVENS ONTVANGER</h3>
 					<div class="space-y-4">
 						<div><label class="block text-white/80 text-md mb-1 tracking-[.025em]">Voornaam</label><input type="text" name="ontvanger_voornaam" autocomplete="shipping given-name" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Voornaam"></div>
-						<div>
-							<label class="block text-white/80 text-md mb-1">Email</label>
-							<input type="email" name="ontvanger_email" autocomplete="shipping email" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Email">
-						</div>
-						<div id="ontvangerAdresWrap" class="hidden space-y-4">
+					<div>
+						<label class="block text-white/80 text-md mb-1">Email</label>
+						<input type="email" name="ontvanger_email" autocomplete="shipping email" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Email">
+					</div>
+					<div>
+						<label class="block text-white/80 text-md mb-1">Mobiel nummer</label>
+						<input type="tel" name="ontvanger_mobiel" autocomplete="shipping tel" inputmode="tel" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="06 … of +31 …">
+					</div>
+					<div id="ontvangerAdresWrap" class="hidden space-y-4">
 							<div class="flex gap-4">
 								<div class="flex-1"><label class="block text-white/80 text-md mb-1">Straat</label><input type="text" name="ontvanger_straat" autocomplete="shipping street-address" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Straat"></div>
 								<div class="w-20 flex-shrink-0"><label class="block text-white/80 text-md mb-1">Nr.</label><input type="text" name="ontvanger_huisnummer" autocomplete="shipping address-line2" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Nr."></div>
@@ -553,12 +557,16 @@ gaan we aan de slag!
 			<section id="section-5" class="flow-section mx-auto max-w-[460px]" data-section="5">
 				<h2 class="section__title section__title--small font__wash text-white mb-6">Even een kleine email check<br /> voordat we verder gaan</h2>
 				<div class="bg-white rounded-md py-4 px-6 mb-6 text-black space-y-3">
-					<div>
-						<p class="text-gray-500 text-md mb-1">Email van de ontvanger</p>
-						<p id="emailConfirmOntvanger" class="font-semibold text-2xl break-all">—</p>
-					</div>
-					<div>
-						<p class="text-gray-500 text-md mb-1">Jouw e-mail</p>
+				<div>
+					<p class="text-gray-500 text-md mb-1">Email van de ontvanger</p>
+					<p id="emailConfirmOntvanger" class="font-semibold text-2xl break-all">—</p>
+				</div>
+				<div id="phoneConfirmOntvangerWrap" class="hidden">
+					<p class="text-gray-500 text-md mb-1">Mobiel nummer ontvanger</p>
+					<p id="phoneConfirmOntvanger" class="font-semibold text-2xl break-all">—</p>
+				</div>
+				<div>
+					<p class="text-gray-500 text-md mb-1">Jouw e-mail</p>
 						<p id="emailConfirmZender" class="font-semibold text-2xl break-all">—</p>
 					</div>
 				</div>
@@ -575,9 +583,26 @@ gaan we aan de slag!
 					<p class="text-white font-bold text-2xl">MOLLIE</p>
 					<p class="text-white text-xl">Betaling verwerken over <span id="mollieCountdown" class="font-bold">5</span> seconden...</p>
 				</div>
-			</section>
+		</section>
 
-			<!-- Section 7: Jouw Autowasbon is Gereed -->
+		<!-- Section 6-fail: Betaling mislukt (data-section 65 — unique id for flow JS) -->
+		<section id="section-6-fail" class="flow-section mx-auto max-w-[460px]" data-section="65">
+			<div class="flex flex-col items-center justify-center text-center px-4 py-8 min-h-[280px]" style="translate: none; rotate: none; scale: none; transform: translate(0px, 0px); opacity: 1;">
+				<img src="data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20id='Layer_1'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%20version='1.1'%20viewBox='0%200%2050%2051'%3e%3c!--%20Generator:%20Adobe%20Illustrator%2030.4.0,%20SVG%20Export%20Plug-In%20.%20SVG%20Version:%202.1.3%20Build%20103)%20--%3e%3cdefs%3e%3cstyle%3e%20.st0%20{%20fill:%20none;%20}%20.st1%20{%20fill:%20%231d1d1b;%20}%20.st2%20{%20fill:%20%23fff;%20}%20.st3%20{%20fill:%20%23f54c4c;%20}%20.st4%20{%20clip-path:%20url(%23clippath);%20}%20%3c/style%3e%3cclipPath%20id='clippath'%3e%3crect%20class='st0'%20width='50'%20height='51'/%3e%3c/clipPath%3e%3c/defs%3e%3cg%20class='st4'%3e%3cg%3e%3cpath%20class='st3'%20d='M2.9,0C1.3,0,0,1.3,0,2.9v45.2c0,1.6,1.3,2.9,2.9,2.9h44.2c1.6,0,2.9-1.3,2.9-2.9V2.9c0-1.6-1.3-2.9-2.9-2.9H2.9Z'/%3e%3cpath%20class='st2'%20d='M2.9.7C1.7.7.7,1.7.7,2.9v45.2c0,1.2,1,2.2,2.2,2.2h44.2c1.2,0,2.2-1,2.2-2.2V2.9c0-1.2-1-2.2-2.2-2.2H2.9Z'/%3e%3cpath%20class='st3'%20d='M48.6,48.1c0,.8-.6,1.5-1.4,1.5H2.9c-.8,0-1.4-.7-1.4-1.5V2.9c0-.8.6-1.5,1.4-1.5h44.2c.8,0,1.4.7,1.4,1.5v45.2Z'/%3e%3cpath%20class='st2'%20d='M40.8,40.4c0,.8-.6,1.4-1.4,1.4H10.1c-.8,0-1.4-.6-1.4-1.4V10.6c0-.8.6-1.4,1.4-1.4h29.4c.7,0,1.4.6,1.4,1.4v29.8h0Z'/%3e%3cpath%20class='st1'%20d='M4.1,34c-.1.1-.4,0-.6,0-.2-.2-.3-.4-.2-.5l17.1-17c.1-.1.4,0,.6,0,.2.2.3.4.2.5L4,34h0Z'/%3e%3cpath%20class='st1'%20d='M21.3,24.4c0,.2-.3.2-.5.2-.3,0-.4-.2-.4-.4l2.4-7.4c0-.2.3-.2.5-.2.3,0,.5.2.4.4l-2.4,7.4h0Z'/%3e%3cpath%20class='st1'%20d='M29.2,22.2c0,.1-.1.3-.4.4s-.5,0-.5,0l-2-5c0-.1.1-.3.4-.4s.5,0,.5,0l2,5Z'/%3e%3cpath%20class='st1'%20d='M35.5,33.7s-.2,0-.4-.2-.4-.3-.4-.4l1.2-1.7s.2,0,.4.2.4.3.4.4l-1.2,1.7Z'/%3e%3cpath%20class='st1'%20d='M35.2,36.3c0,0-.3,0-.4-.3s-.1-.5,0-.5l4.8-2.5c0,0,.3,0,.4.3s.1.5,0,.5l-4.8,2.5Z'/%3e%3cpath%20class='st1'%20d='M21.1,15c-.2,0-.2-.4-.2-.9s.3-.8.4-.8l6.1.8c.2,0,.2.4.2.9s-.3.8-.4.8l-6.1-.8Z'/%3e%3cg%3e%3cpath%20class='st1'%20d='M29.5,27.1c-.4-1.3-.8-1.3-1.3-1.3,0,0-2.2-3.5-2.2-3.6-.7-.8-1.2-.8-1.7-.6l-9.3,2.7c-.6.2-1,.4-1.2,1.5,0,0,0,4.2,0,4.2-.4.2-.8.4-.4,1.8l.9,3.2c.2.7.3,1.3,1,1.1l.4,1.5c.2.7.7.5,1.4.3s1.3-.3,1.1-1l-.4-1.5,9.8-2.8.4,1.5c.2.7.8.5,1.5.3s1.2-.3,1.1-1l-.4-1.5c.7-.2.4-.8.2-1.5l-.9-3.2h0Z'/%3e%3cpath%20class='st2'%20d='M16.2,33.6c-.8.2-1.6-.2-1.9-1s.2-1.7,1-1.9,1.6.2,1.9,1.1-.2,1.6-1,1.9Z'/%3e%3cpath%20class='st2'%20d='M20.9,27.5l-5.7,1.6v-3c0-.6.2-.7.5-.8l8.4-2.4c.4,0,.6-.1,1,.4l1.5,2.6-5.7,1.6Z'/%3e%3cpath%20class='st2'%20d='M28.2,30.2c-.8.2-1.6-.2-1.9-1s.2-1.7,1-1.9c.8-.2,1.6.2,1.9,1.1s-.2,1.6-1,1.9Z'/%3e%3c/g%3e%3cpath%20d='M28.2,35.8h4.7c.6,0,1,.4,1,1v1.7h-6.7v-1.7c0-.6.4-1,1-1Z'/%3e%3c/g%3e%3c/g%3e%3c/svg%3e" alt="" class="w-[128px] h-[128px] mb-6 object-contain" width="120" height="120">
+				<h2 class="section__title  font__wash text-white mb-4 max-w-[320px]">
+					Betaling<br> is mislukt
+				</h2>
+				<p class="text-white text-2xl leading-none mb-8 max-w-[340px] text-balance">
+					Dat ging niet helemaal vlekkenloos.. er is iets misgegaan met je betaling
+				</p>
+				<button type="button" id="btnPaymentRetry" class="btn__main mb-5 max-w-[320px] pr-6" data-just-validate-fallback-disabled="false">
+					Opnieuw proberen
+				</button>
+				<p class="font-mono text-xs text-white/60 mt-8">Error code: 48392</p>
+			</div>
+		</section>
+
+		<!-- Section 7: Jouw Autowasbon is Gereed -->
 			<section id="section-7" class="flow-section mx-auto max-w-[460px]" data-section="7">
 				<div class="title__wash font__wash mb-6">
 					<div class="title__wash--logo flex justify-center items-center z-10 relative rotate-3 mb-[32px]">
@@ -629,11 +654,21 @@ gaan we aan de slag!
 				</div>
 			</section>
 
-			<!-- Section 9: Factuur gemaakt -->
-			<section id="section-9" class="flow-section mx-auto max-w-[460px]" data-section="9">
-				<h2 class="section__title section__title--small font__wash text-white mb-6 text-center">Factuur is gemaakt!</h2>
-				<p class="text-center text-white text-xl mb-8">Gestuurd naar je email.</p>
-			</section>
+		<!-- Section 9: Factuur gemaakt -->
+		<section id="section-9" class="flow-section mx-auto max-w-[460px]" data-section="9">
+			<div class="flex flex-col items-center justify-center text-center px-4 py-8 min-h-[280px]" style="translate: none; rotate: none; scale: none; transform: translate(0px, 0px); opacity: 1;">
+				<img src="data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20id='Layer_1'%20xmlns='http://www.w3.org/2000/svg'%20xmlns:xlink='http://www.w3.org/1999/xlink'%20version='1.1'%20viewBox='0%200%2050%2051'%3e%3c!--%20Generator:%20Adobe%20Illustrator%2030.4.0,%20SVG%20Export%20Plug-In%20.%20SVG%20Version:%202.1.3%20Build%20103)%20--%3e%3cdefs%3e%3cstyle%3e%20.st0%20{%20fill:%20none;%20}%20.st1%20{%20fill:%20%231d1d1b;%20}%20.st2%20{%20fill:%20%23fff;%20}%20.st3%20{%20clip-path:%20url(%23clippath);%20}%20.st4%20{%20fill:%20%2316a34a;%20}%20%3c/style%3e%3cclipPath%20id='clippath'%3e%3crect%20class='st0'%20width='50'%20height='51'/%3e%3c/clipPath%3e%3c/defs%3e%3cg%20class='st3'%3e%3cg%3e%3cpath%20class='st4'%20d='M2.9,0C1.3,0,0,1.3,0,2.9v45.2c0,1.6,1.3,2.9,2.9,2.9h44.2c1.6,0,2.9-1.3,2.9-2.9V2.9c0-1.6-1.3-2.9-2.9-2.9H2.9Z'/%3e%3cpath%20class='st2'%20d='M2.9.7C1.7.7.7,1.7.7,2.9v45.2c0,1.2,1,2.2,2.2,2.2h44.2c1.2,0,2.2-1,2.2-2.2V2.9c0-1.2-1-2.2-2.2-2.2H2.9Z'/%3e%3cpath%20class='st4'%20d='M48.6,48.1c0,.8-.6,1.5-1.4,1.5H2.9c-.8,0-1.4-.7-1.4-1.5V2.9c0-.8.6-1.5,1.4-1.5h44.2c.8,0,1.4.7,1.4,1.5v45.2Z'/%3e%3cpath%20class='st2'%20d='M40.8,40.4c0,.8-.6,1.4-1.4,1.4H10.1c-.8,0-1.4-.6-1.4-1.4V10.6c0-.8.6-1.4,1.4-1.4h29.4c.7,0,1.4.6,1.4,1.4v29.8h0Z'/%3e%3cpath%20class='st1'%20d='M10.8,38.4c0,.2-.3.2-.6,0-.3-.1-.4-.3-.3-.5l11.3-21.3c0-.2.3-.2.6,0,.2.1.4.3.3.5l-11.4,21.3h0Z'/%3e%3cpath%20class='st1'%20d='M21.3,24.4c0,.2-.3.2-.5.2-.3,0-.4-.2-.4-.4l2.4-7.4c0-.2.3-.2.5-.2.3,0,.5.2.4.4l-2.4,7.4h0Z'/%3e%3cpath%20class='st1'%20d='M25.2,24.5c0,.2-.2.3-.5.3s-.5-.1-.5-.3v-7.6c0-.2.2-.3.5-.3s.5.1.5.3v7.6Z'/%3e%3cpath%20class='st1'%20d='M39.3,38.1c0,.2,0,.4-.3.5-.3.1-.5,0-.6,0l-11.4-21.3c0-.2,0-.4.3-.5.3-.1.5,0,.6,0l11.4,21.3Z'/%3e%3cpath%20class='st1'%20d='M21.5,15.8c-.2,0-.3-.4-.3-.9s.1-.9.3-.9h6.2c.2,0,.3.4.3.9s-.1.9-.3.9h-6.2Z'/%3e%3cpath%20class='st1'%20d='M33.1,31.7c0-1.4-.4-1.5-.9-1.6,0,0-1.2-4-1.2-4-.4-.9-.9-1.1-1.5-1.1h-9.6c-.6,0-1.1.2-1.5,1.1,0,0-1.1,4-1.2,4-.5,0-.8.2-.9,1.6v3.3c0,.7,0,1.3.6,1.4v1.6c0,.8.6.7,1.3.7s1.3,0,1.3-.7v-1.6h10.2v1.6c0,.7.6.7,1.3.7s1.3,0,1.3-.7v-1.6c.7,0,.6-.6.6-1.4v-3.3h0Z'/%3e%3cpath%20class='st2'%20d='M18.5,34.3c-.8,0-1.5-.7-1.5-1.5s.7-1.5,1.5-1.5,1.5.7,1.5,1.5-.7,1.5-1.5,1.5Z'/%3e%3cpath%20class='st2'%20d='M24.7,29.8h-5.9l.7-3c.2-.6.5-.6.8-.6h8.7c.4,0,.6,0,.8.6l.7,3h-5.9Z'/%3e%3cpath%20class='st2'%20d='M30.9,34.3c-.8,0-1.5-.7-1.5-1.5s.7-1.5,1.5-1.5,1.5.7,1.5,1.5-.7,1.5-1.5,1.5Z'/%3e%3cpath%20d='M33.4,21.4c-.1,0-.2.1-.2.3s0,.2.2.3l1.4.5.5,1.4c0,.1.1.2.3.2s.2,0,.3-.2l.5-1.4,1.4-.5c.1,0,.2-.1.2-.3s0-.2-.2-.3l-1.4-.5-.5-1.4c0-.1-.1-.2-.3-.2s-.2,0-.3.2l-.5,1.4-1.4.5Z'/%3e%3cpath%20d='M31.3,16.4c0,0,0,0,0,.1s0,.1,0,.1l.7.3.3.7c0,0,0,0,.1,0s.1,0,.1,0l.3-.7.7-.3c0,0,0,0,0-.1s0-.1,0-.1l-.7-.3-.3-.7c0,0,0,0-.1,0s-.1,0-.1,0l-.3.7-.7.3Z'/%3e%3cpath%20d='M36.1,13.2c0,0,0,0,0,.1s0,.1,0,.1l.7.3.3.7c0,0,0,0,.1,0s.1,0,.1,0l.3-.7.7-.3c0,0,0,0,0-.1s0-.1,0-.1l-.7-.3-.3-.7c0,0,0,0-.1,0s-.1,0-.1,0l-.3.7-.7.3Z'/%3e%3cpath%20d='M11.2,16.2c-.2,0-.3.2-.3.4s.1.4.3.4l2.3.9.9,2.3c0,.2.2.3.4.3s.4-.1.4-.3l.9-2.3,2.3-.9c.2,0,.3-.2.3-.4s-.1-.4-.3-.4l-2.3-.9-.9-2.3c0-.2-.2-.3-.4-.3s-.4.1-.4.3l-.9,2.3-2.3.9Z'/%3e%3cpath%20class='st1'%20d='M29,24.1c0,.2-.2.3-.4.4-.3,0-.5,0-.5-.2l-2.4-7.4c0-.2.2-.3.4-.4.3,0,.5,0,.5.2l2.4,7.4Z'/%3e%3c/g%3e%3c/g%3e%3c/svg%3e" alt="" class="w-[128px] h-[128px] mb-6 object-contain" width="120" height="120">
+				<h2 class="section__title  font__wash text-white mb-4 max-w-[320px]">
+					Factuur is <br />verstuurd!
+				</h2>
+				<p class="text-white text-2xl leading-none mb-8 max-w-[340px] text-balance">
+					Je factuur is onderweg, we zorgen dat die elk moment fris en verzorgd in je inbox staat.
+				</p>
+				<button type="button" class="btn__main mb-5 max-w-[320px] pr-6 text-white bg-black">
+					Ga naar Autowasbon.nl
+				</button>
+			</div>
+		</section>
 		</form>
 	</main>
 
