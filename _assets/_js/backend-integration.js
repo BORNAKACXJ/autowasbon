@@ -5,9 +5,11 @@
 
 import { initBackendVoucherCreate } from './backend-voucher-create.js';
 import { initBackendVoucherThanks } from './backend-voucher-thanks.js';
+import { initBackendVoucherInvoice } from './backend-voucher-invoice.js';
 
 /** Backward-compatible initializer used by flow-new entrypoint. */
-export function initBackendIntegration() {
+export function initBackendIntegration({ state, flowValidation } = {}) {
 	void initBackendVoucherThanks();
 	initBackendVoucherCreate();
+	initBackendVoucherInvoice({ state, flowValidation });
 }

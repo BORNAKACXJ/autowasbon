@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 	document.getElementById('btnStart').addEventListener('click', () => state.goNext());
 
-	initBackendIntegration();
+	initBackendIntegration({ state, flowValidation });
 
 	document.querySelectorAll('.step-volgende-btn').forEach(btn => btn.addEventListener('click', () => state.goNext()));
 
@@ -33,14 +33,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 	});
 
 	document.getElementById('btnPaymentRetry')?.addEventListener('click', () => state.showSection(7));
-
-	document.getElementById('btnMaakFactuur')?.addEventListener('click', async () => {
-		const valid = await flowValidation.revalidate();
-		if (valid) {
-			// Factuur form valid; go to success step (submit/API call can be added here)
-			state.showSection(9);
-		}
-	});
 
 	// Receiver name: sync to hidden field, update preview on card, remove readonly on interaction (prevent autofill)
 	const receiverInput = document.getElementById('receiver_name');

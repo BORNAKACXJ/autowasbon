@@ -69,3 +69,41 @@ export async function createVoucher(formData) {
 		return { success: false, error: 'Kon geen verbinding maken met de server. Controleer je internetverbinding en probeer het opnieuw.' };
 	}
 }
+
+/**
+ * POST invoice email request for an existing voucher.
+ * @param {string} voucherId
+ * @param {Record<string, string>} payload
+ * @returns {Promise<{ success: boolean, error?: string, data?: any }>}
+ */
+export async function sendInvoiceEmail(voucherId, payload) {
+	if (!voucherId) {
+		return { success: false, error: 'Voucher id ontbreekt voor factuuraanvraag.' };
+	}
+
+	try {
+		const url = `${VOUCHER_API_URL}/${encodeURIComponent(voucherId)}/invoice-email`;
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(payload || {})
+		});
+
+		const data = await response.json().catch(() => ({}));
+		console.log('[Voucher] Invoice email response:', response.status, data);
+
+		if (response.ok) {
+			return { success: true, data };
+		}
+
+		const errors = data.errors ? Object.values(data.errors).flat().join(', ') : null;
+		const error = errors || data.message || data.error || `Factuur kon niet worden verstuurd (${response.status}).`;
+		return { success: false, error };
+	} catch (err) {
+		console.error('[Voucher] Invoice email POST error:', err);
+		return { success: false, error: 'Kon geen verbinding maken met de server. Controleer je internetverbinding en probeer het opnieuw.' };
+	}
+}

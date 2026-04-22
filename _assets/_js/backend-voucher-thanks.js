@@ -70,6 +70,13 @@ export async function initBackendVoucherThanks() {
 	try {
 		const result = await fetchVoucher(voucherId);
 		if (result.success && result.voucher) {
+			// Persist voucher UUID for post-payment invoice request flow.
+			window.__voucherId = voucherId;
+			const voucherInput = document.getElementById('voucherUuid');
+			if (voucherInput) voucherInput.value = voucherId;
+			const flowForm = document.getElementById('flowForm');
+			if (flowForm) flowForm.dataset.voucherId = voucherId;
+
 			applyVoucherToSection7(result.voucher);
 			activateSection7();
 

@@ -19,6 +19,7 @@
 
 	<main class="flex-1 w-full max-w-[100%] mx-auto px-4 sm:px-6 lg:px-8 py-6 h-full">
 		<form id="flowForm" class="space-y-0 h-full" autocomplete="on">
+			<input type="hidden" id="voucherUuid" name="voucher_uuid" value="">
 
 			<!-- Section 1: Start screen -->
 			<section id="section-1" class="flow-section h-full relative active" data-section="1">
@@ -624,9 +625,9 @@ gaan we aan de slag!
 					</div>
 				</div>
 				
-				<!-- <div class="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-[440px] mx-auto">
+				<div class="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-[440px] mx-auto">
 				<a href="#" id="linkFactuur" class="btn__main bg-black text-white w-full sm:w-auto">Factuur nodig?</a>
-				</div> -->
+				</div>
 			</section>
 
 			<!-- Section 8: Maak factuur -->
@@ -663,9 +664,9 @@ gaan we aan de slag!
 				<p class="text-white text-2xl leading-none mb-8 max-w-[340px] text-balance">
 					Je factuur is onderweg, we zorgen dat die elk moment fris en verzorgd in je inbox staat.
 				</p>
-				<button type="button" class="btn__main mb-5 max-w-[320px] pr-6 text-white bg-black">
+				<a href="https://www.autowasbon.nl/" target="_blank" rel="noopener noreferrer" class="btn__main mb-5 max-w-[320px] pr-6 text-white bg-black inline-block text-center">
 					Ga naar Autowasbon.nl
-				</button>
+				</a>
 			</div>
 		</section>
 		</form>
