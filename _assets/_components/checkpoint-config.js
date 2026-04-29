@@ -1,4 +1,6 @@
 // Checkpoint Timeline Configuration
+// Timing values (startDelayMs, wiggle) are pulled from site-config.js for easy editing.
+import { TIMELINE } from '../_js/site-config.js';
 // 
 // Structure:
 //   - checkpoints: Main navigation points (for scrolling and button clicks)
@@ -29,9 +31,9 @@ export const checkpointConfig = {
     },
     /** Rotation wiggle: runs delayAfterStartMs after Start (independent of startZPrelude / goToNextPoint). */
     startWiggle: {
-      enabled: true,
-      delayAfterStartMs: 2900,
-      durationMs: 320,
+      enabled:          TIMELINE.startWiggleEnabled,
+      delayAfterStartMs: TIMELINE.startWiggleDelayMs,
+      durationMs:       TIMELINE.startWiggleDurationMs,
       ampPitchDeg: 0.1,
       ampYawDeg: 0.2,
       ampRollDeg: 0.2

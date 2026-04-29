@@ -429,7 +429,7 @@ export class WasbonController {
       const success = checkpointCtrl.goToNextPoint(true);
       if (success) {
         // Points total ~24s; clear flag after animation completes
-        const totalDurationMs = 35000;
+        const totalDurationMs = 25000;
         setTimeout(() => {
           this.isAnimatingToEnd = false;
         }, totalDurationMs);

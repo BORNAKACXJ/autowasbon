@@ -9,6 +9,70 @@ export class TextureManager {
     this.textureLoader = new THREE.TextureLoader();
     this.textureLoader.setCrossOrigin('anonymous');
     this.poortTexture = null;
+
+    // Object traversal cache — avoids a full scene.traverse() on every texture call.
+    // Maps objectName → { groups: Object3D[], meshes: Mesh[] }
+    // Call invalidateObjectCache() after adding new objects to the scene.
+    this._objectCache = new Map();
+  }
+
+  /**
+   * Invalidate the object cache. Call this whenever new GLB models are added to the scene
+   * so the next texture lookup rebuilds the index with the new objects included.
+   */
+  invalidateObjectCache() {
+    this._objectCache.clear();
+  }
+
+  /**
+   * Find all groups and meshes in the scene matching objectName (and optionally meshName).
+   * Results are cached after the first lookup. stationId filtering is applied after cache hit
+   * since it's cheap and stationId can vary per call.
+   * @private
+   */
+  _findObjects(objectName, meshName, stationId) {
+    // Rebuild the full name→objects index if not cached yet.
+    if (this._objectCache.size === 0) {
+      this.sceneSetup.getScene().traverse((child) => {
+        const name = child.name || '';
+        if (!name) return;
+        if (!this._objectCache.has(name)) {
+          this._objectCache.set(name, { groups: [], meshes: [] });
+        }
+        const entry = this._objectCache.get(name);
+        if (child.isMesh) {
+          entry.meshes.push(child);
+        } else {
+          entry.groups.push(child);
+        }
+      });
+    }
+
+    const foundObjects = [];
+    const foundGroups  = [];
+    const entry = this._objectCache.get(objectName);
+    if (!entry) return { foundObjects, foundGroups };
+
+    // Process matching groups — collect their child meshes.
+    for (const group of entry.groups) {
+      group.visible = true;
+      foundGroups.push(group);
+      group.traverse((grandchild) => {
+        if (!grandchild.isMesh) return;
+        if (!this.belongsToStation(grandchild, stationId)) return;
+        if (meshName && grandchild.name !== meshName) return;
+        if (!foundObjects.includes(grandchild)) foundObjects.push(grandchild);
+      });
+    }
+
+    // Process matching meshes directly (mesh whose name === objectName).
+    for (const mesh of entry.meshes) {
+      if (!this.belongsToStation(mesh, stationId)) continue;
+      if (meshName && mesh.name !== meshName) continue;
+      if (!foundObjects.includes(mesh)) foundObjects.push(mesh);
+    }
+
+    return { foundObjects, foundGroups };
   }
 
   // Helper function to check if an object belongs to a specific station
@@ -38,55 +102,7 @@ export class TextureManager {
 
   // Helper function to apply only UV mapping without material
   applyUVMappingOnly(objectName, projectionAxis, meshName = null, stationId = null) {
-    const foundObjects = [];
-    const foundGroups = [];
-    const searchName = objectName;
-    const searchMeshName = meshName ? meshName : null;
-    
-    // Single comprehensive traversal to find ALL instances
-    this.sceneSetup.getScene().traverse((child) => {
-      const name = child.name || '';
-      
-      // Check if this is a group with exact matching name
-      if (name === searchName && !child.isMesh) {
-        child.visible = true;
-        foundGroups.push(child);
-        
-        // Find all meshes within this group (recursively)
-        let meshCountInGroup = 0;
-        child.traverse((grandchild) => {
-          if (grandchild.isMesh && this.belongsToStation(grandchild, stationId)) {
-            if (searchMeshName) {
-              const grandchildName = grandchild.name || '';
-              if (grandchildName === searchMeshName && !foundObjects.includes(grandchild)) {
-                foundObjects.push(grandchild);
-                meshCountInGroup++;
-              }
-            } else {
-              if (!foundObjects.includes(grandchild)) {
-                foundObjects.push(grandchild);
-                meshCountInGroup++;
-              }
-            }
-          }
-        });
-      }
-      
-      // Also check if this is a mesh with exact matching name
-      if (child.isMesh && this.belongsToStation(child, stationId)) {
-        const childName = child.name || '';
-        
-        if (childName === searchName && !foundObjects.includes(child)) {
-          if (searchMeshName) {
-            if (childName === searchMeshName) {
-              foundObjects.push(child);
-            }
-          } else {
-            foundObjects.push(child);
-          }
-        }
-      }
-    });
+    const { foundObjects, foundGroups } = this._findObjects(objectName, meshName, stationId);
     
     
     if (foundObjects.length === 0) {
@@ -169,70 +185,7 @@ export class TextureManager {
 
   // Helper function to apply texture to found objects
   applyTextureToObjects(objectName, texture, projectionAxis, gamma, meshName = null, stationId = null, transparent = true, visible = true, depthWrite = true, useBasicMaterial = false, flipV = false, flipH = false, forceReplace = false) {
-    if (flipV && (objectName.includes('user__wens') || objectName.includes('user__media') || objectName.includes('autowasbon__txt'))) {
-    }
-    const foundObjects = [];
-    const foundGroups = [];
-    const searchName = objectName;
-    const searchMeshName = meshName ? meshName : null;
-    
-    // Single comprehensive traversal to find ALL instances
-    // This will find both groups and meshes with the exact name, regardless of hierarchy
-    this.sceneSetup.getScene().traverse((child) => {
-      const name = child.name || '';
-      
-      // Check if this is a group with exact matching name
-      if (name === searchName && !child.isMesh) {
-        child.visible = true;
-        foundGroups.push(child);
-        
-        // Find all meshes within this group (recursively)
-        let meshCountInGroup = 0;
-        child.traverse((grandchild) => {
-          if (grandchild.isMesh && this.belongsToStation(grandchild, stationId)) {
-            // If meshName is specified, only include meshes that match exactly
-            if (searchMeshName) {
-              const grandchildName = grandchild.name || '';
-              if (grandchildName === searchMeshName && !foundObjects.includes(grandchild)) {
-                foundObjects.push(grandchild);
-                meshCountInGroup++;
-              }
-            } else {
-              // No meshName specified, include all meshes in the group
-              if (!foundObjects.includes(grandchild)) {
-                foundObjects.push(grandchild);
-                meshCountInGroup++;
-              }
-            }
-          }
-        });
-      }
-      
-      // Also check if this is a mesh with exact matching name (could be both group and mesh in different places)
-      if (child.isMesh && this.belongsToStation(child, stationId)) {
-        const childName = child.name || '';
-        
-        // Check if mesh name matches exactly
-        if (childName === searchName && !foundObjects.includes(child)) {
-          // If meshName is specified, only include meshes that match exactly
-          if (searchMeshName) {
-            if (childName === searchMeshName) {
-              foundObjects.push(child);
-            }
-          } else {
-            // No meshName specified, include all meshes with this name
-            foundObjects.push(child);
-          }
-        }
-      }
-    });
-    
-    
-    // Log all found meshes for debugging
-    if (foundObjects.length > 0) {
-      foundObjects.forEach((mesh, index) => {
-      });
-    }
+    const { foundObjects, foundGroups } = this._findObjects(objectName, meshName, stationId);
     
     if (foundObjects.length === 0) {
       // Suppress warning for wasboog__back as it doesn't exist in the scene

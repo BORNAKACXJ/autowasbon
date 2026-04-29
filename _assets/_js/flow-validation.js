@@ -3,7 +3,7 @@
  * Inline errors under inputs. Conditional rules: only validate fields in the active section.
  */
 
-import JustValidate from 'just-validate';
+const JustValidate = window.JustValidate;
 
 function isSectionActive(sectionId) {
 	const el = document.getElementById(sectionId);
@@ -125,6 +125,11 @@ function emailWhenSection8(message = 'Vul een geldig e-mailadres in') {
  * @returns {{ revalidate: () => Promise<boolean> }}
  */
 export function initFlowValidation() {
+	if (!JustValidate) {
+		console.warn('Just-validate not loaded; form validation disabled.');
+		return { revalidate: () => Promise.resolve(true) };
+	}
+
 	const form = document.getElementById('flowForm');
 	if (!form) return { revalidate: () => Promise.resolve(true) };
 
@@ -132,6 +137,7 @@ export function initFlowValidation() {
 		errorLabelCssClass: 'flow-field-error',
 		errorFieldCssClass: 'just-validate-error-field',
 		focusInvalidField: true,
+		validateBeforeSubmitting: true
 	});
 
 	// Section 4: GEGEVENS ONTVANGER

@@ -414,40 +414,42 @@ async function loadStation(stationIndex, station, startZ, currentTheme, loader) 
   return { endZ, allModels };
 }
 
-// Monitor camera position and load stations when needed (mobile lazy loading)
+// Monitor camera position and load stations when needed (mobile lazy loading).
+// NOTE: Currently pendingStations is always empty (all stations load upfront),
+// so this monitor exits immediately. If lazy loading is re-enabled in future,
+// restore by populating pendingStations in the station loading loop above.
 function startStationLazyLoadingMonitor() {
+  // Exit early — nothing to monitor if pendingStations is empty.
+  // Previously this looped via requestAnimationFrame even when empty,
+  // wasting a frame callback on every render tick.
   if (!stationLoadingState.isMobile) return;
-  
+  if (stationLoadingState.pendingStations.length === 0) return;
+
   const checkAndLoadStations = () => {
-    if (stationLoadingState.loadingInProgress || stationLoadingState.pendingStations.length === 0) {
+    // Stop the loop once all pending stations are loaded.
+    if (stationLoadingState.pendingStations.length === 0) return;
+
+    if (stationLoadingState.loadingInProgress) {
       requestAnimationFrame(checkAndLoadStations);
       return;
     }
-    
+
     if (!sceneSetup || !sceneSetup.getCamera()) {
       requestAnimationFrame(checkAndLoadStations);
       return;
     }
-    
+
     const cameraZ = sceneSetup.getCamera().position.z;
-    const loadThreshold = 20; // Load when camera is 20 units before previous station ends
-    
-    // Check if we should load the next pending station
+    const loadThreshold = 20;
     const nextPending = stationLoadingState.pendingStations[0];
+
     if (nextPending) {
-      // Determine which station to check against for loading trigger
-      // Station 4 loads when station 2 is nearly out of view
-      // Station 5 loads when station 3 is nearly out of view
-      // Station 6 loads when station 4 is nearly out of view, etc.
-      const triggerStationIndex = nextPending.index - 2; // Check 2 stations back
-      
+      const triggerStationIndex = nextPending.index - 2;
       if (triggerStationIndex >= 0 && triggerStationIndex < stationLoadingState.loadedStations.length) {
         const triggerStation = stationLoadingState.loadedStations[triggerStationIndex];
         if (triggerStation && cameraZ < triggerStation.endZ + loadThreshold) {
-          // Time to load this station
           stationLoadingState.loadingInProgress = true;
           const pending = stationLoadingState.pendingStations.shift();
-          
           loadPendingStation(pending).then(() => {
             stationLoadingState.loadingInProgress = false;
           }).catch(error => {
@@ -457,10 +459,10 @@ function startStationLazyLoadingMonitor() {
         }
       }
     }
-    
+
     requestAnimationFrame(checkAndLoadStations);
   };
-  
+
   checkAndLoadStations();
 }
 
@@ -524,11 +526,10 @@ async function loadPendingStation(pending) {
       stationLoadingState.pendingStations[0].startZ = endZ;
     }
     
-    // Apply UV mappings for this station
-    // For lazy-loaded stations, we need to apply all UV mappings since they weren't applied initially
-    // The giveObjectMapping function searches the scene, so it will find the newly loaded objects
+    // New objects were added to the scene — invalidate the TextureManager object cache
+    // so the next texture call rebuilds the index with these new objects included.
     if (textureManager) {
-      // Apply all UV mappings (they will only affect objects that exist in the scene)
+      textureManager.invalidateObjectCache();
       applyUVMappings(textureManager, SOAP_THEME, SOAP_THEMES, stations);
     }
     
@@ -665,7 +666,8 @@ async function loadAllStations() {
   // Apply poort texture to any remaining poort objects (in case texture loaded after models)
   textureManager.applyPoortTextureToScene();
 
-  // Apply UV mappings
+  // All stations now in scene — build fresh traversal cache before applying UV mappings.
+  textureManager.invalidateObjectCache();
   applyUVMappings(textureManager, SOAP_THEME, SOAP_THEMES, stations);
   
   // Refresh Lottie textures after UV mappings are applied (with delay to account for async texture loading)

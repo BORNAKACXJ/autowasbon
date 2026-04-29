@@ -104,6 +104,14 @@ export class AnimationController {
     this.lastTime = Date.now();
     this.isAnimating = false;
     this.clock = { startTime: Date.now() }; // Simple clock for consistent timing
+
+    // Pre-allocated Vector3 pool — reused throughout animationLoop() every frame.
+    // Since JS is single-threaded we can safely share these across sequential sections.
+    // _worldPosVec: used by calculateScrollProgress()
+    // _v1, _v2: used by specific animation blocks (brush, flap, wens, etc.)
+    this._worldPosVec = new THREE.Vector3();
+    this._v1 = new THREE.Vector3();
+    this._v2 = new THREE.Vector3();
   }
 
   // Set collections of objects to animate
@@ -175,20 +183,18 @@ export class AnimationController {
    * @returns {number} Progress value from 0 to 1
    */
   calculateScrollProgress(cameraZ, fromZ, toZ, object, camera, distanceThreshold, fallbackZ = 0) {
-    // Calculate distance from camera to object
+    // Calculate distance from camera to object.
+    // Reuses this._worldPosVec (pre-allocated) to avoid GC pressure in the render loop.
     let distance = distanceThreshold;
     try {
       if (object && object.updateMatrixWorld) {
         object.updateMatrixWorld(true);
-        const objectWorldPos = new THREE.Vector3();
-        object.getWorldPosition(objectWorldPos);
-        distance = camera.position.distanceTo(objectWorldPos);
+        object.getWorldPosition(this._worldPosVec);  // writes into pre-allocated vec
+        distance = camera.position.distanceTo(this._worldPosVec);
       } else {
-        // Fallback to Z distance if world position not available
         distance = Math.abs(camera.position.z - fallbackZ);
       }
     } catch (e) {
-      // Fallback to Z distance if calculation fails
       distance = Math.abs(camera.position.z - fallbackZ);
     }
 
@@ -274,9 +280,8 @@ export class AnimationController {
           let distance = BORSTEL_X_MOVEMENT_DISTANCE; // Default distance
           try {
             item.object.updateMatrixWorld(true);
-            const brushWorldPos = new THREE.Vector3();
-            item.object.getWorldPosition(brushWorldPos);
-            distance = cameraPos.distanceTo(brushWorldPos);
+            item.object.getWorldPosition(this._v1); // reuse pooled vec
+            distance = cameraPos.distanceTo(this._v1);
           } catch (e) {
             // Fallback to Z distance if world position not available
             const brushStationZ = item.brushStationZ || 0;
@@ -491,11 +496,9 @@ export class AnimationController {
           let distance = CURTAIN_FLAP_DISTANCE; // Default distance
           if (obj.parent) {
             obj.updateMatrixWorld(true);
-            const flapWorldPos = new THREE.Vector3();
-            obj.getWorldPosition(flapWorldPos);
-            distance = cameraPos.distanceTo(flapWorldPos);
+            obj.getWorldPosition(this._v1); // reuse pooled vec
+            distance = cameraPos.distanceTo(this._v1);
           } else {
-            // Fallback to Z distance if world position not available
             const curtainStationZ = item.curtainStationZ || 0;
             distance = Math.abs(cameraPos.z - curtainStationZ);
           }
@@ -547,9 +550,8 @@ export class AnimationController {
             let liftDistance = CURTAIN_FLAP_LIFT_DISTANCE; // Default distance
             if (obj.parent) {
               obj.updateMatrixWorld(true);
-              const flapWorldPos = new THREE.Vector3();
-              obj.getWorldPosition(flapWorldPos);
-              liftDistance = cameraPos.distanceTo(flapWorldPos);
+              obj.getWorldPosition(this._v1); // reuse pooled vec
+              liftDistance = cameraPos.distanceTo(this._v1);
             } else {
               // Fallback to Z distance if world position not available
               const curtainStationZ = item.curtainStationZ || 0;
@@ -635,11 +637,9 @@ export class AnimationController {
           // Get world position to ensure we have the correct starting position
           if (item.originalY === undefined) {
             obj.updateMatrixWorld(true);
-            const worldPos = new THREE.Vector3();
-            obj.getWorldPosition(worldPos);
-            // Store both local and world Y for reference
+            obj.getWorldPosition(this._v1); // reuse pooled vec (one-time init, not per-frame after)
             item.originalY = obj.position.y;
-            item.originalWorldY = worldPos.y;
+            item.originalWorldY = this._v1.y;
           }
           
           const originalY = item.originalY;
@@ -648,9 +648,8 @@ export class AnimationController {
           let distance = CURTAIN_FLAP_LIFT_DISTANCE; // Default distance
           try {
             obj.updateMatrixWorld(true);
-            const groupWorldPos = new THREE.Vector3();
-            obj.getWorldPosition(groupWorldPos);
-            distance = cameraPos.distanceTo(groupWorldPos);
+            obj.getWorldPosition(this._v2); // reuse pooled vec (separate from _v1 used above)
+            distance = cameraPos.distanceTo(this._v2);
           } catch (e) {
             // Fallback to Z distance if world position not available
             const curtainStationZ = item.curtainStationZ || 0;
@@ -689,14 +688,7 @@ export class AnimationController {
             obj.parent.updateMatrixWorld(true);
           }
           
-          // Debug log periodically or when close
-          if (!item.lastLogTime || Date.now() - item.lastLogTime > 2000 || distance < 20) {
-            obj.updateMatrixWorld(true);
-            const currentWorldPos = new THREE.Vector3();
-            obj.getWorldPosition(currentWorldPos);
-            const groupType = item.groupType || 'unknown';
-            item.lastLogTime = Date.now();
-          }
+          // (debug position logging removed — was creating a new Vector3 every ≤2s)
         } else {
           console.warn(`Curtain flap group item ${index} is invalid:`, item);
         }

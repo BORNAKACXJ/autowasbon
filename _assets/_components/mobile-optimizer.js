@@ -2,191 +2,127 @@
 import * as THREE from 'three';
 
 /**
- * Mobile optimizer for Three.js applications
- * Automatically detects mobile devices and applies performance optimizations
+ * Mobile optimizer for Three.js applications.
+ *
+ * Strategy: cap pixel ratio and lower GPU power preference on mobile,
+ * but NEVER touch texture sizes, geometry, or station loading — those
+ * caused the "only one station visible" bug in the previous version.
+ *
+ * Safe optimizations (won't break the 3D scene):
+ *  - Pixel ratio capped at 1.5 on mobile (saves ~50% GPU fill on 3× screens)
+ *  - powerPreference: 'low-power' on mobile (reduces heat / throttling)
+ *  - precision: 'mediump' on low-end mobile (faster shader math)
+ *  - antialias disabled on low-end mobile (big GPU saving)
+ *  - Lottie FPS capped at 30 on mobile
+ *
+ * NOT changed (these broke the scene previously):
+ *  - maxTextureSize — keep at 4096
+ *  - textureQuality — keep at 1.0
+ *  - geometry/stations — untouched
+ *  - shadows — remain disabled (not used in this project)
  */
 export class MobileOptimizer {
   constructor() {
-    this.isMobile = this.detectMobile();
+    this.isMobile = this._detectMobile();
     this.isLowEnd = false;
-    
-    // Shadow map types
+
     this.shadowMapTypes = {
       basic: THREE.BasicShadowMap,
       pcf: THREE.PCFSoftShadowMap
     };
-    
-    // DISABLED: Mobile optimizations are disabled, but mobile detection is kept for camera position
-    // All optimizations use desktop settings regardless of device
+
+    // Start with safe defaults, then refine for mobile
     this.optimizations = {
-      pixelRatio: window.devicePixelRatio, // Use full pixel ratio
-      antialias: true, // Enable antialiasing
-      shadowMapSize: 2048, // Full shadow map size
-      shadowMapType: THREE ? THREE.PCFSoftShadowMap : 1, // High quality shadows
-      textureQuality: 1.0, // Full texture quality
-      lottieFPS: 60, // Full FPS
-      enableShadows: false, // Shadows always disabled - not used in this project
-      maxTextureSize: 4096 // Full texture size
+      pixelRatio:    window.devicePixelRatio,
+      antialias:     true,
+      shadowMapSize: 2048,
+      shadowMapType: THREE.PCFSoftShadowMap,
+      textureQuality: 1.0,   // ← never reduce; breaks UV textures
+      lottieFPS:     60,
+      enableShadows: false,
+      maxTextureSize: 4096   // ← never reduce; breaks 3D station textures
     };
-    
-    // Detect low-end devices (but don't apply optimizations)
-    this.detectLowEnd();
-    
-    // Low-end optimizations disabled - keep desktop settings
-    
-    // Mobile optimizer initialized
-  }
-  
-  /**
-   * Detect if device is mobile
-   */
-  detectMobile() {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    
-    // Check for mobile devices
-    const mobileRegex = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
-    const isMobileUserAgent = mobileRegex.test(userAgent);
-    
-    // Check for touch support
-    const hasTouchScreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    
-    // Check screen size (mobile typically < 768px)
-    const isSmallScreen = window.innerWidth <= 768;
-    
-    // Consider it mobile if any of these conditions are true
-    return isMobileUserAgent || (hasTouchScreen && isSmallScreen);
-  }
-  
-  /**
-   * Detect low-end devices based on hardware concurrency and memory
-   */
-  detectLowEnd() {
-    // Check hardware concurrency (CPU cores)
-    const cores = navigator.hardwareConcurrency || 4;
-    
-    // Check device memory (if available)
-    const memory = navigator.deviceMemory || 4;
-    
-    // Check if it's a mobile device with limited resources
+
+    this._detectLowEnd();
+
     if (this.isMobile) {
-      // Low-end if: less than 4 cores OR less than 4GB RAM
-      this.isLowEnd = cores < 4 || memory < 4;
-    }
-    
-    // Additional check: very small screen might indicate older device
-    if (window.innerWidth < 375) {
-      this.isLowEnd = true;
-    }
-  }
-  
-  /**
-   * Apply optimizations to a Three.js renderer
-   * DISABLED: No optimizations applied, but method kept for compatibility
-   */
-  optimizeRenderer(renderer) {
-    if (!renderer) return;
-    
-    // Set pixel ratio (use desktop settings)
-    renderer.setPixelRatio(this.optimizations.pixelRatio);
-    
-    // Shadow map settings - shadows always disabled (not used in this project)
-    if (renderer.shadowMap) {
-      renderer.shadowMap.enabled = false; // Always disabled
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    }
-    
-    // Renderer optimized (with desktop settings)
-  }
-  
-  /**
-   * Optimize texture loading
-   */
-  optimizeTexture(texture) {
-    if (!texture) return texture;
-    
-    // Reduce texture quality on mobile
-    if (this.isMobile && texture.image) {
-      // Scale down texture if it's too large
-      const maxSize = this.optimizations.maxTextureSize;
-      if (texture.image.width > maxSize || texture.image.height > maxSize) {
-        // Note: Actual resizing would require canvas manipulation
-        // This is a placeholder for texture optimization logic
-        texture.minFilter = THREE.LinearFilter;
-        texture.magFilter = THREE.LinearFilter;
-        texture.generateMipmaps = false; // Disable mipmaps for better performance
+      // Cap pixel ratio — biggest single mobile win (no visual change at normal viewing distance)
+      this.optimizations.pixelRatio = Math.min(window.devicePixelRatio, 1.5);
+      // Lottie at 30 FPS is imperceptible on mobile
+      this.optimizations.lottieFPS = 30;
+
+      if (this.isLowEnd) {
+        // Extra savings for low-end phones: disable antialias (biggest GPU save)
+        this.optimizations.antialias = false;
       }
     }
-    
-    return texture;
   }
-  
+
+  _detectMobile() {
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const mobileUA = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua);
+    const touchSmall = ('ontouchstart' in window || navigator.maxTouchPoints > 0) && window.innerWidth <= 768;
+    return mobileUA || touchSmall;
+  }
+
+  _detectLowEnd() {
+    const cores  = navigator.hardwareConcurrency || 4;
+    const memory = navigator.deviceMemory || 4;      // GB, Safari returns undefined → 4
+    if (this.isMobile && (cores < 4 || memory < 4)) {
+      this.isLowEnd = true;
+    }
+    if (window.innerWidth < 375) {
+      this.isLowEnd = true; // very small screen = old device
+    }
+  }
+
+  /** Apply pixel ratio and shadow settings to a THREE.WebGLRenderer. */
+  optimizeRenderer(renderer) {
+    if (!renderer) return;
+    renderer.setPixelRatio(this.optimizations.pixelRatio);
+
+    if (renderer.shadowMap) {
+      renderer.shadowMap.enabled = false; // shadows not used in this project
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    }
+  }
+
   /**
-   * Get optimized renderer options
-   * DISABLED: Returns desktop settings regardless of device
+   * Options for THREE.WebGLRenderer constructor.
+   * Mobile uses low-power GPU profile and mediump precision on low-end.
    */
   getRendererOptions() {
+    if (this.isMobile) {
+      return {
+        antialias:       !this.isLowEnd,  // off on budget phones → big GPU saving
+        alpha:           true,
+        powerPreference: 'low-power',     // prevents thermal throttling on phones
+        precision:       this.isLowEnd ? 'mediump' : 'highp'
+      };
+    }
     return {
-      antialias: this.optimizations.antialias, // true (desktop setting)
-      alpha: true,
-      powerPreference: 'high-performance', // Always high performance
-      precision: 'highp' // Always high precision
+      antialias:       true,
+      alpha:           true,
+      powerPreference: 'high-performance',
+      precision:       'highp'
     };
   }
-  
-  /**
-   * Get optimized shadow map size
-   */
-  getShadowMapSize() {
-    return this.optimizations.shadowMapSize;
+
+  /** Pass textures through unchanged — reducing size breaks UV-mapped station textures. */
+  optimizeTexture(texture) {
+    return texture;
   }
-  
-  /**
-   * Get optimized pixel ratio
-   */
-  getPixelRatio() {
-    return this.optimizations.pixelRatio;
+
+  /** Pass geometry through unchanged — reducing complexity broke station visibility. */
+  optimizeGeometry(geometry) {
+    return geometry;
   }
-  
-  /**
-   * Get optimized Lottie FPS
-   */
-  getLottieFPS() {
-    return this.optimizations.lottieFPS;
-  }
-  
-  /**
-   * Get texture quality multiplier
-   */
-  getTextureQuality() {
-    return this.optimizations.textureQuality;
-  }
-  
-  /**
-   * Check if device is mobile
-   */
-  getIsMobile() {
-    return this.isMobile;
-  }
-  
-  /**
-   * Check if device is low-end
-   */
-  getIsLowEnd() {
-    return this.isLowEnd;
-  }
-  
-  /**
-   * Apply frame rate limiting for animations (throttle updates)
-   * DISABLED: Always uses 60 FPS regardless of device
-   */
+
+  /** Throttled animation loop helper. On mobile caps at 30 FPS. */
   createThrottledUpdate(callback, targetFPS = null) {
-    if (!targetFPS) {
-      targetFPS = 60; // Always use 60 FPS (desktop setting)
-    }
-    
-    const interval = 1000 / targetFPS;
+    const fps = targetFPS ?? this.optimizations.lottieFPS;
+    const interval = 1000 / fps;
     let lastTime = 0;
-    
     return (currentTime) => {
       if (currentTime - lastTime >= interval) {
         callback();
@@ -194,27 +130,12 @@ export class MobileOptimizer {
       }
     };
   }
-  
-  /**
-   * Optimize geometry (reduce complexity if needed)
-   */
-  optimizeGeometry(geometry) {
-    if (!geometry || !this.isLowEnd) return geometry;
-    
-    // For low-end devices, we could simplify geometry here
-    // This is a placeholder - actual simplification would use BufferGeometryUtils
-    // or similar tools
-    
-    return geometry;
-  }
-  
-  /**
-   * Get all optimization settings
-   */
-  getOptimizations() {
-    return { ...this.optimizations };
-  }
-}
 
-// THREE.js will be available globally when the module loads
-// The MobileOptimizer handles cases where THREE might not be loaded yet
+  getShadowMapSize()  { return this.optimizations.shadowMapSize; }
+  getPixelRatio()     { return this.optimizations.pixelRatio; }
+  getLottieFPS()      { return this.optimizations.lottieFPS; }
+  getTextureQuality() { return this.optimizations.textureQuality; }
+  getIsMobile()       { return this.isMobile; }
+  getIsLowEnd()       { return this.isLowEnd; }
+  getOptimizations()  { return { ...this.optimizations }; }
+}

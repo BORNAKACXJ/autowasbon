@@ -63,97 +63,12 @@ export class SceneSetup {
   }
   
   setupLighting() {
-    // Ambient light - increased for better base illumination
+    // Single ambient light — shadows are disabled in this project so directional
+    // lights don't add anything. Intensity 0.5 was chosen during visual tuning.
+    // To add directional lights in future: create THREE.DirectionalLight and add to scene.
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     this.scene.add(ambientLight);
     this.lights.ambient = ambientLight;
-
-    // const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.2 );
-    // hemiLight.color.setHex( 0xFFFFFF ); // Blue (sky)
-    // hemiLight.groundColor.setHex( 0xFFFFFF ); // Green (ground)
-    // hemiLight.position.set( 0, 50, 0 );
-    // this.scene.add( hemiLight );
-    // this.lights.hemiLight = hemiLight;
-    
-    // Main directional light - increased intensity
-    // const directionalLight = new THREE.DirectionalLight(0xffffff, 0.4);
-    // directionalLight.position.set(5, 5, 5);
-    // //directionalLight.castShadow = false;
-    // this.scene.add(directionalLight);
-    // this.lights.directional1 = directionalLight;
-    
-    // // Fill light - increased for better fill
-    // const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
-    // directionalLight2.position.set(-5, 5, -5);
-    // this.scene.add(directionalLight2);
-    // this.lights.directional2 = directionalLight2;
-    
-    // // Top light - increased for better top illumination
-    // const directionalLight3 = new THREE.DirectionalLight(0xffffff, 0.4);
-    // directionalLight3.position.set(0, 10, 0);
-    // this.scene.add(directionalLight3);
-    // this.lights.directional3 = directionalLight3;
-
-    // Add lighting to the scene
-// Reduced lighting intensities to match Spline's appearance
-// const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); // Lower ambient light
-// this.scene.add(ambientLight);
-
-// // Main directional light - reduced intensity
-// const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7); // Reduced intensity
-// directionalLight.position.set(5, 10, 5); // Position the light
-// directionalLight.castShadow = true; // Optional: enable shadows if needed
-// this.scene.add(directionalLight);
-
-// // Fill light from the opposite side - reduced intensity
-// const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.3); // Reduced fill light
-// directionalLight2.position.set(-5, 5, -5);
-// this.scene.add(directionalLight2);
-
-// // Add a light from above for top-down illumination - reduced intensity
-// const directionalLight3 = new THREE.DirectionalLight(0xffffff, 0.2);
-// directionalLight3.position.set(0, 10, 0);
-// this.scene.add(directionalLight3);
-
-
-// Add lighting to the scene - reduced intensity
-// const ambientLight = new THREE.AmbientLight(0xffffff, 0.4); // Reduced ambient light
-// this.scene.add(ambientLight);
-
-// // Add directional light for shadows - reduced intensity
-// const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5); // Reduced from 1.0 to 0.5
-// directionalLight.position.set(5, 10, 5);
-// directionalLight.castShadow = true;
-// directionalLight.shadow.mapSize.width = 2048;
-// directionalLight.shadow.mapSize.height = 2048;
-// directionalLight.shadow.camera.near = 0.5;
-// directionalLight.shadow.camera.far = 500;
-// directionalLight.shadow.camera.left = -50;
-// directionalLight.shadow.camera.right = 50;
-// directionalLight.shadow.camera.top = 50;
-// directionalLight.shadow.camera.bottom = -50;
-// this.scene.add(directionalLight);
-// this.lights.directional1 = directionalLight;
-
-// Main directional light - reduced intensity
-// const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // Reduced intensity
-// directionalLight.position.set(5, 10, 5); // Position the light
-// directionalLight.castShadow = false; // Optional: enable shadows if needed
-// this.scene.add(directionalLight);
-
-// // Fill light from the opposite side - reduced intensity
-// const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.3); // Reduced fill light
-// directionalLight2.position.set(-5, 5, -5);
-// directionalLight2.castShadow = false;
-// this.scene.add(directionalLight2);
-
-// // Add a light from above for top-down illumination - reduced intensity
-// const directionalLight3 = new THREE.DirectionalLight(0xffffff, 0.2);
-// directionalLight3.position.set(0, 10, 0);
-// directionalLight3.castShadow = false;
-// this.scene.add(directionalLight3);
-
-
   }
   
   getLights() {

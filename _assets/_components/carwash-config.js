@@ -1,5 +1,6 @@
 // Configuration constants for carwash.html
 import { generateNameTexture, generateMultilineTexture } from './name-texture-generator.js';
+import { ACTIVE_SOAP_THEME, DEFAULTS } from '../_js/site-config.js';
 
 // Global gamma value for all textures (1.0 = no change, higher = darker, lower = brighter)
 export const GAMMA = 1.0;
@@ -44,14 +45,14 @@ export function getName() {
   if (globalNameGetter) {
     const name = globalNameGetter();
     // On maak-bon page, return empty string if no name (don't show default)
-    // On carwash.html, return 'NIELS' if no name
+    // On carwash.html, return default name (set in site-config.js → DEFAULTS.name)
     if (!name || name.trim() === '') {
-      return isMaakBonPage ? '' : 'NIELS';
+      return isMaakBonPage ? '' : DEFAULTS.name;
     }
     return name;
   }
-  // If no name getter is set, return empty on maak-bon, 'NIELS' on carwash
-  return isMaakBonPage ? '' : 'NIELS';
+  // If no name getter is set, return empty on maak-bon, default name on carwash
+  return isMaakBonPage ? '' : DEFAULTS.name;
 }
 
 export function getDoucheGordijnText() {
@@ -101,8 +102,8 @@ export function generateDoucheGordijnTexture() {
   });
 }
 
-// Soap theme configuration
-export let SOAP_THEME = 'Power Sop'; // Change this to switch themes: 'Party Party', 'Sweet Flowers', 'Pop Sop', 'Power Sop', 'Feel Good', 'Soft Calm', 'Autowasbon'
+// Soap theme configuration — default from site-config.js, overridable at runtime via setSoapTheme()
+export let SOAP_THEME = ACTIVE_SOAP_THEME;
 
 export function setSoapTheme(theme) {
   SOAP_THEME = theme;

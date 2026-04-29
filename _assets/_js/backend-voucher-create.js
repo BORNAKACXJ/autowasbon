@@ -15,7 +15,7 @@ function buildVoucherPayload() {
 	const flowWaarde = parseFloat(document.getElementById('flowWaarde')?.value || 15);
 
 	const deliveryOption = document.querySelector('.sop-delivery-option.ring-2, .sop-delivery-option.bg-sky-200');
-	const shippingCost = deliveryOption ? parseFloat(deliveryOption.getAttribute('data-price') || 0) : (deliverySop === 'post' ? 2.95 : 0.99);
+	const shippingCost = deliveryOption ? parseFloat(deliveryOption.getAttribute('data-price') || 0) : (deliverySop === 'post' ? 2.95 : 0);
 
 	const sopIndex = SOAP_OPTIONS.findIndex(o => o.key === flowSop);
 	const voucherLayout = sopIndex >= 0 ? sopIndex + 1 : 1;

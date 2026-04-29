@@ -6,10 +6,21 @@
 
 import { SOAP_OPTIONS, SPOTIFY_DEFAULT_PLAYLIST_URI, SPOTIFY_TRACK_URL } from './maakbon-config.js';
 import { loadSopPreviewLottie } from './maakbon-lottie.js';
+import { SPOTIFY } from './site-config.js';
+
+/** True when running on a mobile/touch device — used to avoid autoplay blocks. */
+function isMobileDevice() {
+	return /android|iphone|ipad|ipod|webos|blackberry|iemobile|opera mini/i.test(navigator.userAgent) ||
+		(('ontouchstart' in window || navigator.maxTouchPoints > 0) && window.innerWidth <= 768);
+}
 
 export function initSop(state) {
 	let sopIndex = 0;
 	let hasInteractedWithSopStep = false;
+
+	// On mobile, start muted so the browser's autoplay policy isn't triggered.
+	// User can tap the sound button to unmute whenever they want.
+	const startMuted = SPOTIFY.startMutedOnMobile && isMobileDevice();
 
 	let spotifyController = null;
 	let spotifyPlayWhenReady = false;
@@ -49,7 +60,11 @@ export function initSop(state) {
 			spotifyPlayWhenReady = true;
 		}
 	}
+	// Track whether the Spotify iframe API ever fired — used for fallback below.
+	let spotifyApiLoaded = false;
+
 	window.onSpotifyIframeApiReady = function (IFrameAPI) {
+		spotifyApiLoaded = true;
 		const el = document.getElementById('sopSpotifyEmbed');
 		if (!el) return;
 		const w = (el.parentElement && el.parentElement.clientWidth) ? el.parentElement.clientWidth : 400;
@@ -76,6 +91,22 @@ export function initSop(state) {
 			});
 		});
 	};
+
+	// Fallback: if the Spotify iframe API script fails to load (common on ad-blockers or
+	// restricted mobile networks), show a graceful fallback link after 5 seconds.
+	setTimeout(function () {
+		if (!spotifyApiLoaded) {
+			const el = document.getElementById('sopSpotifyEmbed');
+			if (el && !el.querySelector('iframe')) {
+				const sop = SOAP_OPTIONS[sopIndex];
+				const playlistId = (sop && sop.playlist || SPOTIFY_DEFAULT_PLAYLIST_URI).replace('spotify:playlist:', '');
+				el.innerHTML = `<a href="https://open.spotify.com/playlist/${playlistId}" target="_blank" rel="noopener"
+					style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#1db954;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;">
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.622.622 0 11-.277-1.213c3.809-.87 7.076-.496 9.712 1.115a.622.622 0 01.207.855zm1.223-2.722a.779.779 0 01-1.072.257C14.14 12.27 10.65 11.67 7.4 12.6a.779.779 0 01-.397-1.504c3.647-1.033 7.555-.53 10.41 1.534a.779.779 0 01.396 1.072zm.105-2.835C15.07 9.1 10.53 8.95 7.6 9.84a.935.935 0 11-.543-1.788c3.36-1.02 8.45-.823 11.78 1.17a.935.935 0 01-.923 1.645z"/></svg>
+					Playlist openen in Spotify</a>`;
+			}
+		}
+	}, 5000);
 
 	function applySopBgColor() {
 		const bg = SOAP_OPTIONS[sopIndex]?.bgColor || '#89b7f9';
@@ -251,6 +282,32 @@ export function initSop(state) {
 	}
 
 	state.sopIndex = 0;
+
+	// Apply initial mute state before first display update so spotifyPlayWhenReady is correct.
+	if (startMuted) {
+		const sopSoundBtn = document.getElementById('sopSound');
+		const sopSoundIcon = document.getElementById('sopSoundIcon');
+		if (sopSoundBtn) sopSoundBtn.classList.add('sop-sound-muted');
+		if (sopSoundIcon) {
+			sopSoundIcon.classList.remove('fa-volume-high');
+			sopSoundIcon.classList.add('fa-volume-off');
+		}
+		// Show a small hint so users know they can tap to hear music
+		const hint = document.createElement('p');
+		hint.id = 'sopMobileHint';
+		hint.textContent = 'Tik op het geluid om muziek af te spelen';
+		hint.style.cssText = 'font-size:11px;color:rgba(0,0,0,0.5);text-align:center;margin-top:4px;';
+		const sopSoundParent = sopSoundBtn && sopSoundBtn.parentElement;
+		if (sopSoundParent && !document.getElementById('sopMobileHint')) {
+			sopSoundParent.insertAdjacentElement('afterend', hint);
+		}
+		// Remove hint once user taps sound for the first time
+		document.getElementById('sopSound')?.addEventListener('click', function onFirstTap() {
+			document.getElementById('sopMobileHint')?.remove();
+			document.getElementById('sopSound')?.removeEventListener('click', onFirstTap);
+		}, { once: true });
+	}
+
 	updateSopDisplay();
 
 	document.getElementById('sopSoapImg').addEventListener('click', function () {

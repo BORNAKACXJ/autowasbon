@@ -1,19 +1,7 @@
-/* ===== CAMERA CONTROLLER ===== */
+/* ===== CAMERA CONTROLLER =====
+ * Easing functions live in CameraController.applyEasing() — add new ones there.
+ */
 import * as THREE from 'three';
-
-function easeOutQuad(t) {
-  return 1 - (1 - t) * (1 - t);
-}
-
-/** 0→1 bounce settle (overshoot then land). */
-function easeOutBounce(t) {
-  const n1 = 7.5625;
-  const d1 = 2.75;
-  if (t < 1 / d1) return n1 * t * t;
-  if (t < 2 / d1) return n1 * (t -= 1.5 / d1) * t + 0.75;
-  if (t < 2.5 / d1) return n1 * (t -= 2.25 / d1) * t + 0.9375;
-  return n1 * (t -= 2.625 / d1) * t + 0.984375;
-}
 
 export class CameraController {
   constructor(camera, sceneSetup, scrollCheckpoints = null) {
@@ -258,7 +246,7 @@ export class CameraController {
       if (p.phase === 'out') {
         const elapsed = now - p.phaseStartTime;
         const u = Math.min(1, elapsed / p.durationOut);
-        const eased = easeOutQuad(u);
+        const eased = this.applyEasing(u, 'easeOutQuad');
         this.camera.position.z = p.zBase + p.forwardDelta * eased;
         this.targetZ = this.camera.position.z;
         if (u >= 1) {
@@ -269,7 +257,7 @@ export class CameraController {
       } else {
         const elapsed = now - p.phaseStartTime;
         const u = Math.min(1, elapsed / p.durationBack);
-        const eased = easeOutBounce(u);
+        const eased = this.applyEasing(u, 'easeOutBounce');
         this.camera.position.z = p.zPeak + (p.zBase - p.zPeak) * eased;
         this.targetZ = this.camera.position.z;
         if (u >= 1) {
@@ -712,29 +700,30 @@ export class CameraController {
   }
   
   /**
-   * Apply easing function to progress (0-1)
+   * Single easing utility — all camera animations use this.
+   * Supported types: 'linear' | 'ease' | 'easeInOut' | 'easeIn' | 'easeOut' | 'easeOutQuad' | 'easeOutBounce'
    */
   applyEasing(progress, easingType) {
     if (progress <= 0) return 0;
     if (progress >= 1) return 1;
-    
     switch (easingType) {
-      case 'linear':
-        return progress;
+      case 'linear':      return progress;
+      case 'easeOutQuad': return 1 - (1 - progress) * (1 - progress);
+      case 'easeOutBounce': {
+        const n1 = 7.5625, d1 = 2.75;
+        let t = progress;
+        if (t < 1 / d1)       return n1 * t * t;
+        if (t < 2 / d1)       return n1 * (t -= 1.5   / d1) * t + 0.75;
+        if (t < 2.5 / d1)     return n1 * (t -= 2.25  / d1) * t + 0.9375;
+        return                        n1 * (t -= 2.625 / d1) * t + 0.984375;
+      }
       case 'ease':
-      case 'easeInOut':
-        // Cubic ease in-out
-        return progress < 0.5
-          ? 4 * progress * progress * progress
-          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-      case 'easeIn':
-        // Cubic ease in
-        return progress * progress * progress;
-      case 'easeOut':
-        // Cubic ease out
-        return 1 - Math.pow(1 - progress, 3);
-      default:
-        return progress;
+      case 'easeInOut':   return progress < 0.5
+                            ? 4 * progress * progress * progress
+                            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      case 'easeIn':      return progress * progress * progress;
+      case 'easeOut':     return 1 - Math.pow(1 - progress, 3);
+      default:            return progress;
     }
   }
   

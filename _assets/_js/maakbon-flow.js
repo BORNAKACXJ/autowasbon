@@ -17,7 +17,7 @@ export function createFlowState() {
 	let currentStepSection2 = 1;
 	let sopIndex = 0;
 	let sopSoapConfirmed = false;
-	let deliveryPrice = 0.99;
+	let deliveryPrice = 0;
 	let waarde = 15;
 	let mollieTimer = null;
 	/** When true, user came from step 7 (summary) to edit; next should return to step 7 instead of walking steps. */
