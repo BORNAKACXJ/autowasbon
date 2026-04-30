@@ -7,7 +7,7 @@ function buildVoucherPayload() {
 	const form = document.getElementById('flowForm');
 	if (!form) return null;
 
-	const deliverySop = document.getElementById('deliverySop')?.value || 'digitaal';
+	const deliverySop = document.getElementById('deliverySop')?.value || 'email';
 	const sendWhen = document.getElementById('sendWhen')?.value || 'direct';
 	const sendDate = document.getElementById('sendDate')?.value || '';
 	const flowReden = document.getElementById('flowReden')?.value || 'geslaagd';
@@ -25,6 +25,14 @@ function buildVoucherPayload() {
 	const receiverParts = receiverName ? receiverName.split(/\s+/) : [];
 	const receiverFirstname = ontvangerVoornaam || receiverParts[0] || '';
 	const receiverLastname = receiverParts.length > 1 ? receiverParts.slice(1).join(' ') : '';
+	const receiverMobileRaw = (form.querySelector('[name="ontvanger_mobiel"]')?.value || '').trim();
+	const receiverMobile = receiverMobileRaw.replace(/[^\d+]/g, '');
+
+	const sendTypeByDeliverySop = {
+		post: 1,
+		email: 2,
+		whatsapp: 3
+	};
 
 	const payload = {
 		voucher_type: WENS_TO_VOUCHER_TYPE[flowReden] ?? 1,
@@ -51,8 +59,9 @@ function buildVoucherPayload() {
 		receiver_city: (form.querySelector('[name="ontvanger_plaats"]')?.value || '').trim(),
 		receiver_country: 'NL',
 		receiver_email: (form.querySelector('[name="ontvanger_email"]')?.value || '').trim(),
+		receiver_mobile: receiverMobile,
 		preferred_receiving_date: sendWhen === 'datum' && sendDate ? sendDate : '',
-		send_type: deliverySop === 'post' ? 1 : 2,
+		send_type: sendTypeByDeliverySop[deliverySop] ?? 2,
 		send_invoice: false,
 		return_url: VOUCHER_RETURN_URL
 	};

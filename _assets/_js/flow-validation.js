@@ -15,27 +15,43 @@ function isPostDelivery() {
 	return el && el.value === 'post';
 }
 
-function isDigitaalDelivery() {
+function isEmailDelivery() {
 	const el = document.getElementById('deliverySop');
-	return el && el.value === 'digitaal';
+	return el && el.value === 'email';
 }
 
-/** Require value when section 4 is active and delivery is digitaal (WhatsApp / e-mail). */
-function whenSection4Digitaal(message = 'Verplicht') {
+function isWhatsappDelivery() {
+	const el = document.getElementById('deliverySop');
+	return el && el.value === 'whatsapp';
+}
+
+/** Require value when section 4 is active and delivery is Email. */
+function whenSection4Email(message = 'Verplicht') {
 	return {
 		validator: (value) => {
-			if (!isSectionActive('section-4') || !isDigitaalDelivery()) return true;
+			if (!isSectionActive('section-4') || !isEmailDelivery()) return true;
 			return (value || '').trim().length > 0;
 		},
 		errorMessage: message
 	};
 }
 
-/** Loose phone check when digitaal and value present. */
-function phoneWhenSection4Digitaal(message = 'Vul een geldig mobiel nummer in') {
+/** Require value when section 4 is active and delivery is WhatsApp. */
+function whenSection4Whatsapp(message = 'Verplicht') {
 	return {
 		validator: (value) => {
-			if (!isSectionActive('section-4') || !isDigitaalDelivery()) return true;
+			if (!isSectionActive('section-4') || !isWhatsappDelivery()) return true;
+			return (value || '').trim().length > 0;
+		},
+		errorMessage: message
+	};
+}
+
+/** Loose phone check when WhatsApp delivery and value present. */
+function phoneWhenSection4Whatsapp(message = 'Vul een geldig mobiel nummer in') {
+	return {
+		validator: (value) => {
+			if (!isSectionActive('section-4') || !isWhatsappDelivery()) return true;
 			const v = (value || '').trim();
 			if (v.length === 0) return true;
 			const digits = v.replace(/\D/g, '');
@@ -121,12 +137,12 @@ export function initFlowValidation() {
 	// Section 4: GEGEVENS ONTVANGER
 	validator.addField('input[name="ontvanger_voornaam"]', [whenSection4('Vul de voornaam van de ontvanger in')]);
 	validator.addField('input[name="ontvanger_email"]', [
-		whenSection4('Vul het e-mailadres van de ontvanger in'),
+		whenSection4Email('Vul het e-mailadres van de ontvanger in'),
 		emailWhenSection4('Vul een geldig e-mailadres in')
 	]);
 	validator.addField('input[name="ontvanger_mobiel"]', [
-		whenSection4Digitaal('Vul het mobiele nummer van de ontvanger in'),
-		phoneWhenSection4Digitaal('Vul een geldig mobiel nummer in')
+		whenSection4Whatsapp('Vul het mobiele nummer van de ontvanger in'),
+		phoneWhenSection4Whatsapp('Vul een geldig mobiel nummer in')
 	]);
 	validator.addField('input[name="ontvanger_straat"]', [whenSection4Post('Vul de straat in')]);
 	validator.addField('input[name="ontvanger_huisnummer"]', [whenSection4Post('Vul het huisnummer in')]);

@@ -11,7 +11,7 @@
 	<script src="https://kit.fontawesome.com/f041d734e9.js" crossorigin="anonymous"></script>
 	<script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
 	<title>National Autowasbon - Persoonlijke Autowasbon samenstellen</title>
-  <script type="module" crossorigin src="/assets/flow-CWm839h3.js"></script>
+  <script type="module" crossorigin src="/assets/flow-C0PbIJ5M.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/wensen-config-D-CaiPya.js">
   <link rel="stylesheet" crossorigin href="/assets/wensen-config-DLpicLy5.css">
   <link rel="stylesheet" crossorigin href="/assets/flow-BobEAgNX.css">
@@ -441,12 +441,18 @@ gaan we aan de slag!
 					<div class="step__wrapper">
 						<h2 class="section__title section__title--small font__wash text-white mb-6">HOE WIL JE <br />DE AUTOWASBON GEVEN?</h2>
 						<div class="space-y-4 lg:grid lg:grid-cols-1 lg:gap-6 lg:space-y-0 max-w-[400px] mx-auto">
-						<button type="button" class="sop-delivery-option relative w-full bg-white hover:bg-sky-200 rounded-md p-6 flex flex-col gap-6 text-left hover:ring-2 hover:ring-[#FACC15] transition-all" data-sop="digitaal" data-price="0.99">
-							<!-- <span class="delivery-option__label">Van €2,49 voor €0,99</span> -->
+						<button type="button" class="sop-delivery-option relative w-full bg-white hover:bg-sky-200 rounded-md p-6 flex flex-col gap-6 text-left hover:ring-2 hover:ring-[#FACC15] transition-all" data-sop="email" data-price="0">
+							<div><i class="fa-sharp fa-solid fa-at text-black fa-2xl"></i></div>
+							<div class="flex flex-row items-center justify-between w-full">
+								<span class="text-black text-xl w-[50%] leading-none">Stuur jouw persoonlijke Autowasbon via email</span>
+								<span class="bg-black text-white font-bold px-4 py-2 rounded-md text-xl">Gratis</span>
+							</div>
+						</button>
+						<button type="button" class="sop-delivery-option relative w-full bg-white hover:bg-sky-200 rounded-md p-6 flex flex-col gap-6 text-left hover:ring-2 hover:ring-[#FACC15] transition-all" data-sop="whatsapp" data-price="0">
 							<div><i class="fa-brands fa-whatsapp text-black fa-2xl"></i></div>
 							<div class="flex flex-row items-center justify-between w-full">
-							<span class="text-black text-xl w-[50%] leading-none">Stuur direct via email of deel de link via Whatsapp</span>
-							<span class="bg-black text-white font-bold px-4 py-2 rounded-md text-xl">Gratis</span>
+								<span class="text-black text-xl w-[50%] leading-none">Stuur jouw persoonlijke Autowasbon via Whatsapp</span>
+								<span class="bg-black text-white font-bold px-4 py-2 rounded-md text-xl">Gratis</span>
 							</div>
 						</button>
 						<button type="button" class="sop-delivery-option delivery-post-option w-full bg-white rounded-md p-6 flex flex-col gap-6 text-left hover:ring-2 hover:ring-[#FACC15] hover:bg-sky-200 transition-all" data-sop="post" data-price="2.95">
@@ -462,7 +468,7 @@ gaan we aan de slag!
 							</div>
 						</button>
 						</div>
-						<input type="hidden" name="delivery_sop" id="deliverySop" value="digitaal">
+						<input type="hidden" name="delivery_sop" id="deliverySop" value="email">
 						<div class="max-w-[400px] mx-auto mt-6">
 							<button type="button" id="btnStep8Doorgaan" class="step-volgende-btn btn__main w-full" disabled>Doorgaan <i class="fa-sharp fa-solid fa-arrow-right"></i></button>
 						</div>
@@ -521,11 +527,11 @@ gaan we aan de slag!
 					<h3 class="text-white font-bold uppercase mb-4 text-2xl">GEGEVENS ONTVANGER</h3>
 					<div class="space-y-4">
 						<div><label class="block text-white/80 text-md mb-1 tracking-[.025em]">Voornaam</label><input type="text" name="ontvanger_voornaam" autocomplete="shipping given-name" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Voornaam"></div>
-					<div>
+					<div id="ontvangerEmailWrap">
 						<label class="block text-white/80 text-md mb-1">Email</label>
 						<input type="email" name="ontvanger_email" autocomplete="shipping email" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="Email">
 					</div>
-					<div>
+					<div id="ontvangerMobielWrap">
 						<label class="block text-white/80 text-md mb-1">Mobiel nummer</label>
 						<input type="tel" name="ontvanger_mobiel" autocomplete="shipping tel" inputmode="tel" class="w-full rounded-md border-0 bg-white text-xl py-3 px-4 text-black focus:shadow-lg focus:outline-none" placeholder="06 … of +31 …">
 					</div>
@@ -556,9 +562,9 @@ gaan we aan de slag!
 
 			<!-- Section 5: Bevestig e-mailadres -->
 			<section id="section-5" class="flow-section mx-auto max-w-[460px]" data-section="5">
-				<h2 class="section__title section__title--small font__wash text-white mb-6">Even een kleine email check<br /> voordat we verder gaan</h2>
+				<h2 class="section__title section__title--small font__wash text-white mb-6">Even een kleine contact check<br /> voordat we verder gaan</h2>
 				<div class="bg-white rounded-md py-4 px-6 mb-6 text-black space-y-3">
-				<div>
+				<div id="emailConfirmOntvangerWrap">
 					<p class="text-gray-500 text-md mb-1">Email van de ontvanger</p>
 					<p id="emailConfirmOntvanger" class="font-semibold text-2xl break-all">—</p>
 				</div>
@@ -566,7 +572,7 @@ gaan we aan de slag!
 					<p class="text-gray-500 text-md mb-1">Mobiel nummer ontvanger</p>
 					<p id="phoneConfirmOntvanger" class="font-semibold text-2xl break-all">—</p>
 				</div>
-				<div>
+				<div id="emailConfirmZenderWrap">
 					<p class="text-gray-500 text-md mb-1">Jouw e-mail</p>
 						<p id="emailConfirmZender" class="font-semibold text-2xl break-all">—</p>
 					</div>

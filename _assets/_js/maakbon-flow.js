@@ -47,15 +47,23 @@ export function createFlowState() {
 		if (sectionNum === 4) {
 			const deliverySop = document.getElementById('deliverySop');
 			const adresWrap = document.getElementById('ontvangerAdresWrap');
+			const ontvangerEmailWrap = document.getElementById('ontvangerEmailWrap');
+			const ontvangerMobielWrap = document.getElementById('ontvangerMobielWrap');
 			if (adresWrap && deliverySop) {
 				adresWrap.classList.toggle('hidden', deliverySop.value !== 'post');
+			}
+			if (deliverySop) {
+				const isEmail = deliverySop.value === 'email';
+				const isWhatsapp = deliverySop.value === 'whatsapp';
+				if (ontvangerEmailWrap) ontvangerEmailWrap.classList.toggle('hidden', !isEmail);
+				if (ontvangerMobielWrap) ontvangerMobielWrap.classList.toggle('hidden', !isWhatsapp);
 			}
 			// const mobielHint = document.getElementById('ontvangerMobielHint');
 			// if (mobielHint && deliverySop) {
 			// 	mobielHint.textContent =
 			// 		deliverySop.value === 'post'
 			// 			? 'Optioneel bij verzending via de post.'
-			// 			: 'Verplicht bij digitaal versturen (e-mail / WhatsApp).';
+			// 			: 'Verplicht bij WhatsApp-verzending.';
 			// }
 		}
 		if (sectionNum === 5) {
@@ -66,13 +74,19 @@ export function createFlowState() {
 			const zenderEl = document.querySelector('input[name="zender_email"]');
 			const d1 = document.getElementById('emailConfirmOntvanger');
 			const d2 = document.getElementById('emailConfirmZender');
+			const emailOntvangerWrap = document.getElementById('emailConfirmOntvangerWrap');
+			const emailZenderWrap = document.getElementById('emailConfirmZenderWrap');
 			const phoneWrap = document.getElementById('phoneConfirmOntvangerWrap');
 			const phoneConfirm = document.getElementById('phoneConfirmOntvanger');
 			if (d1 && ontvangerEl) d1.textContent = ontvangerEl.value.trim() || '—';
 			if (d2 && zenderEl) d2.textContent = zenderEl.value.trim() || '—';
-			const isDigitaal = deliverySop?.value === 'digitaal';
-			if (phoneWrap) phoneWrap.classList.toggle('hidden', !isDigitaal);
-			if (phoneConfirm && mobielEl && isDigitaal) {
+			const isEmail = deliverySop?.value === 'email';
+			const isWhatsapp = deliverySop?.value === 'whatsapp';
+			if (emailOntvangerWrap) emailOntvangerWrap.classList.toggle('hidden', !isEmail);
+			// Giver email is always required, so keep it visible for every delivery type.
+			if (emailZenderWrap) emailZenderWrap.classList.remove('hidden');
+			if (phoneWrap) phoneWrap.classList.toggle('hidden', !isWhatsapp);
+			if (phoneConfirm && mobielEl && isWhatsapp) {
 				phoneConfirm.textContent = mobielEl.value.trim() || '—';
 			}
 		}
@@ -259,10 +273,14 @@ export function createFlowState() {
 		// Section 4 summary: delivery + send when (dynamic)
 		const summaryDeliverySend = document.getElementById('summaryDeliverySend');
 		if (summaryDeliverySend) {
-			const deliverySop = document.getElementById('deliverySop')?.value || 'digitaal';
+			const deliverySop = document.getElementById('deliverySop')?.value || 'email';
 			const sendWhen = document.getElementById('sendWhen')?.value || 'direct';
 			const sendDateRaw = document.getElementById('sendDate')?.value || '';
-			const deliveryLabel = deliverySop === 'post' ? 'Via de post' : 'Digitaal versturen';
+			const deliveryLabel = deliverySop === 'post'
+				? 'Via de post'
+				: deliverySop === 'whatsapp'
+					? 'Via WhatsApp'
+					: 'Via e-mail';
 			const sendLabel = sendWhen === 'datum' && sendDateRaw
 				? 'Verzenden op ' + formatSendDate(sendDateRaw)
 				: 'Direct versturen';

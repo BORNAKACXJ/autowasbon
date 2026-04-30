@@ -3,6 +3,16 @@
  */
 
 export function initSteps(state) {
+	function updateSection4DeliveryFields() {
+		const deliverySop = document.getElementById('deliverySop')?.value || 'email';
+		const ontvangerEmailWrap = document.getElementById('ontvangerEmailWrap');
+		const ontvangerMobielWrap = document.getElementById('ontvangerMobielWrap');
+		const ontvangerAdresWrap = document.getElementById('ontvangerAdresWrap');
+		if (ontvangerEmailWrap) ontvangerEmailWrap.classList.toggle('hidden', deliverySop !== 'email');
+		if (ontvangerMobielWrap) ontvangerMobielWrap.classList.toggle('hidden', deliverySop !== 'whatsapp');
+		if (ontvangerAdresWrap) ontvangerAdresWrap.classList.toggle('hidden', deliverySop !== 'post');
+	}
+
 	// Step 4: enable "Voeg toe" only when receiver name has input
 	const receiverInput = document.getElementById('receiver_name');
 	const btnStep4 = document.getElementById('btnStep4VoegToe');
@@ -23,11 +33,13 @@ export function initSteps(state) {
 			this.classList.add('ring-2', 'ring-[#FACC15]', 'bg-sky-200');
 			document.getElementById('deliverySop').value = this.getAttribute('data-sop');
 			state.deliveryPrice = parseFloat(this.getAttribute('data-price'));
+			updateSection4DeliveryFields();
 			if (isPost) this.classList.add('delivery-post--expanded');
 			const btnStep8 = document.getElementById('btnStep8Doorgaan');
 			if (btnStep8) btnStep8.disabled = false;
 		});
 	});
+	updateSection4DeliveryFields();
 
 	// Min date for send: when post delivery, at least 2 days in advance
 	function getMinSendDate() {
