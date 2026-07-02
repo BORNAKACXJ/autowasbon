@@ -89,7 +89,7 @@ function buildVoucherPayload() {
 	const photoInput = document.getElementById('photoUpload');
 	if (photoInput?.files?.length) {
 		const file = photoInput.files[0];
-		if (file && file.type.startsWith('image/')) fd.append('photo', file);
+		if (file && file.type.startsWith('image/') && file.size <= MAX_PHOTO_BYTES) fd.append('photo', file);
 	}
 
 	return fd;

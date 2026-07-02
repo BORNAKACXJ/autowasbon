@@ -4,6 +4,9 @@
 
 export const SECTION2_STEPS = 9;
 
+/** Max allowed photo upload size in bytes (1 MB). Matches backend voucher validation. */
+export const MAX_PHOTO_BYTES = 1 * 1024 * 1024;
+
 /** Backend URL that returns { access_token }. Set SPOTIFY_CLIENT_ID + SPOTIFY_CLIENT_SECRET only in server env (Vercel / .env). */
 export const SPOTIFY_TOKEN_URL = '/api/spotify-token';
 /** Backend URL that returns { artist, name } for a track. GET ?id=trackId. Same server as SPOTIFY_TOKEN_URL. */

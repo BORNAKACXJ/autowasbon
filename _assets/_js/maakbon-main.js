@@ -10,6 +10,7 @@ import { initWensen } from './maakbon-wensen.js';
 import { initSop } from './maakbon-sop.js';
 import { initSteps } from './maakbon-steps.js';
 import { initFlowValidation } from './flow-validation.js';
+import { MAX_PHOTO_BYTES } from './maakbon-config.js';
 import { initBackendIntegration } from './backend-integration.js';
 import { initBackendVoucherThanks } from './backend-voucher-thanks.js';
 import { initBackendVoucherInvoice } from './backend-voucher-invoice.js';
@@ -61,14 +62,41 @@ document.addEventListener('DOMContentLoaded', async function () {
 	// Step 5: show selected photo in preview (no upload, local display only)
 	const photoInput = document.getElementById('photoUpload');
 	const photoPreview = document.getElementById('media__upload--preview');
+	const photoError = document.getElementById('photoUploadError');
 	const placeholderSrc = photoPreview && photoPreview.src;
+	function showPhotoError(message) {
+		if (!photoError) return;
+		photoError.textContent = message;
+		photoError.classList.remove('hidden');
+	}
+	function clearPhotoError() {
+		if (!photoError) return;
+		photoError.textContent = '';
+		photoError.classList.add('hidden');
+	}
+	function resetPhotoSelection() {
+		if (photoInput) photoInput.value = '';
+		if (placeholderSrc) photoPreview.src = placeholderSrc;
+	}
 	if (photoInput && photoPreview) {
 		photoInput.addEventListener('change', function () {
 			const file = this.files && this.files[0];
-			if (!file || !file.type.startsWith('image/')) {
+			if (!file) {
+				clearPhotoError();
 				if (placeholderSrc) photoPreview.src = placeholderSrc;
 				return;
 			}
+			if (!file.type.startsWith('image/')) {
+				showPhotoError('Alleen afbeeldingen zijn toegestaan.');
+				resetPhotoSelection();
+				return;
+			}
+			if (file.size > MAX_PHOTO_BYTES) {
+				showPhotoError('Bestand is te groot. Maximum grootte is 1MB.');
+				resetPhotoSelection();
+				return;
+			}
+			clearPhotoError();
 			const prevUrl = photoPreview.dataset.objectUrl;
 			if (prevUrl) URL.revokeObjectURL(prevUrl);
 			const url = URL.createObjectURL(file);
