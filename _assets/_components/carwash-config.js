@@ -18,6 +18,8 @@ let globalNameGetter = null;
 let globalDoucheGordijnTextGetter = null;
 // Global media URL getter function - can be set to override the default placeholder photo
 let globalMediaUrlGetter = null;
+// Global wens Lottie getter - set per voucher (from voucher_type) to override the default wens
+let globalWensLottieGetter = null;
 // Flag to indicate if we're on maak-bon page (where empty name should show nothing)
 let isMaakBonPage = false;
 
@@ -39,6 +41,14 @@ export function setMediaUrlGetter(getter) {
 
 export function getMediaUrl() {
   return globalMediaUrlGetter ? globalMediaUrlGetter() : null;
+}
+
+export function setWensLottieGetter(getter) {
+  globalWensLottieGetter = getter;
+}
+
+export function getWensLottie() {
+  return globalWensLottieGetter ? globalWensLottieGetter() : null;
 }
 
 export function getName() {
@@ -318,6 +328,11 @@ export const SOAP_THEMES = {
     }
   }
 };
+
+// SOAP_OPTIONS[0].name is 'Autowasbon', but its theme is keyed 'Start' here.
+// Alias so voucher_layout=1 resolves to the (blue) Autowasbon theme instead of
+// falling back to 'Power Sop' (green). 'Start' is kept for existing fallbacks.
+SOAP_THEMES['Autowasbon'] = SOAP_THEMES['Start'];
 
 // Movement variables
 export const BORSTEL_X_MOVEMENT_SPEED = 2; // Speed of movement (legacy, kept for compatibility)

@@ -35,7 +35,8 @@ function buildVoucherPayload() {
 	const shippingCost = deliveryOption ? parseFloat(deliveryOption.getAttribute('data-price') || 0) : (deliverySop === 'post' ? 2.95 : 0);
 
 	const sopIndex = SOAP_OPTIONS.findIndex(o => o.key === flowSop);
-	const voucherLayout = sopIndex >= 0 ? (sopIndex % 2) + 1 : 1;
+	// voucher_layout is 1-indexed into SOAP_OPTIONS (index 0 -> 1, ... index 6 -> 7).
+	const voucherLayout = sopIndex >= 0 ? sopIndex + 1 : 1;
 
 	const ontvangerVoornaam = (form.querySelector('[name="ontvanger_voornaam"]')?.value || '').trim();
 	const receiverName = (document.getElementById('receiver_name_hidden')?.value || document.getElementById('receiver_name')?.value || '').trim();

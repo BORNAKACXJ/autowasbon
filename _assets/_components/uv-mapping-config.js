@@ -1,6 +1,6 @@
 // UV mapping configurations for carwash.html
 // This file contains all the giveObjectMapping calls for texture application
-import { USER_MEDIA_GAMMA, generateDoucheGordijnTexture, getMediaUrl } from './carwash-config.js';
+import { USER_MEDIA_GAMMA, generateDoucheGordijnTexture, getMediaUrl, getWensLottie } from './carwash-config.js';
 import { WENSEN, USER_WENS_LOTTIE_OPTIONS } from './wensen-config.js';
 
 export function applyUVMappings(textureManager, SOAP_THEME, SOAP_THEMES, stations) {
@@ -29,7 +29,8 @@ export function applyUVMappings(textureManager, SOAP_THEME, SOAP_THEMES, station
 
   // user__wens: Apply Lottie animation as texture (replaces layer__wens.png)
   // Use default from wensen config; updates when user selects a wens in maak-bon
-  const defaultWensLottie = WENSEN.length > 0 ? WENSEN[4].lottie : 'https://lottie.host/f1d0e197-55d8-4b0c-8670-31287c95dd0e/pFkebShNjk.lottie';
+  const fallbackWensLottie = WENSEN.length > 0 ? WENSEN[4].lottie : 'https://lottie.host/f1d0e197-55d8-4b0c-8670-31287c95dd0e/pFkebShNjk.lottie';
+  const defaultWensLottie = getWensLottie() || fallbackWensLottie;
   setTimeout(() => {
     textureManager.applyLottieTexture('user__wens', defaultWensLottie, 'x', {
       ...USER_WENS_LOTTIE_OPTIONS

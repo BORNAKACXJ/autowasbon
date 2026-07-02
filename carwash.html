@@ -1259,8 +1259,10 @@
 <script type="module" src="_assets/_components/station-loader.js"></script>
 <script type="module" src="_assets/_components/lottie-zindex-trigger.js"></script>
 <script type="module">
-  import { setNameGetter, setSoapTheme, setDoucheGordijnTextGetter, setMediaUrlGetter } from './_assets/_components/carwash-config.js';
+  import { setNameGetter, setSoapTheme, setDoucheGordijnTextGetter, setMediaUrlGetter, setWensLottieGetter } from './_assets/_components/carwash-config.js';
   import { SOAP_OPTIONS } from './_assets/_js/maakbon-config.js';
+  import { VOUCHER_TYPE_TO_WENS_KEY, normalizeVoucherTypeKey } from './_assets/_js/backend-voucher-mappers.js';
+  import { WENSEN } from './_assets/_components/wensen-config.js';
 
   const DUMMY_VOUCHER = {
     id: 10, uuid: '76e589af-8733-4b2c-b719-8e0f7cf54830',
@@ -1310,6 +1312,11 @@
     const layoutIdx = voucher.voucher_layout?.value ?? voucher.voucher_layout;
     const theme = SOAP_OPTIONS[Number(layoutIdx) - 1]?.name;
     if (theme) setSoapTheme(theme);
+
+    // voucher_type -> wens Lottie (applied by applyUVMappings via getWensLottie()).
+    const wensKey = VOUCHER_TYPE_TO_WENS_KEY[normalizeVoucherTypeKey(voucher.voucher_type)];
+    const wens = wensKey ? WENSEN.find(w => w.key === wensKey) : null;
+    if (wens?.lottie) setWensLottieGetter(() => wens.lottie);
 
     if (voucher.uuid) {
       const photoUrl = `https://beleving.api.autowasbon.nl/api/v1/vouchers/${voucher.uuid}/photo`;
