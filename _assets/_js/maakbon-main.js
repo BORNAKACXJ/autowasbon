@@ -11,6 +11,8 @@ import { initSop } from './maakbon-sop.js';
 import { initSteps } from './maakbon-steps.js';
 import { initFlowValidation } from './flow-validation.js';
 import { initBackendIntegration } from './backend-integration.js';
+import { initBackendVoucherThanks } from './backend-voucher-thanks.js';
+import { initBackendVoucherInvoice } from './backend-voucher-invoice.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
 	initLottieClickFeedback();
@@ -24,6 +26,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 	document.getElementById('btnStart').addEventListener('click', () => state.goNext());
 
 	initBackendIntegration({ state, flowValidation });
+	initBackendVoucherThanks();
+	initBackendVoucherInvoice({ state, flowValidation });
 
 	document.querySelectorAll('.step-volgende-btn').forEach(btn => btn.addEventListener('click', () => state.goNext()));
 
