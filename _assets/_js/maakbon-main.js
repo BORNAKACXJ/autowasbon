@@ -87,12 +87,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 				return;
 			}
 			if (!file.type.startsWith('image/')) {
-				showPhotoError('Alleen afbeeldingen zijn toegestaan.');
+				showPhotoError('Dit bestand is geen afbeelding. Kies een andere afbeelding.');
 				resetPhotoSelection();
 				return;
 			}
 			if (file.size > MAX_PHOTO_BYTES) {
-				showPhotoError('Bestand is te groot. Maximum grootte is 1MB.');
+				showPhotoError('Deze foto is te groot (maximaal 1 MB). Kies een andere afbeelding.');
 				resetPhotoSelection();
 				return;
 			}
