@@ -8,7 +8,7 @@
  */
 
 import { createVoucher, VOUCHER_API_URL, VOUCHER_RETURN_URL } from './backend-api.js';
-import { SOAP_OPTIONS } from './maakbon-config.js';
+import { SOAP_OPTIONS, MAX_PHOTO_BYTES } from './maakbon-config.js';
 
 /** Map wens key (flowReden) to VoucherType enum value. */
 const WENS_TO_VOUCHER_TYPE = {
@@ -16,8 +16,8 @@ const WENS_TO_VOUCHER_TYPE = {
 	goedgekeurd: 6, dankjewel: 7, spetter: 8, glashelder: 9, zomaar: 10
 };
 
-/** Map flowWaarde (15|17.5|20) to API value (7.5|10|15). */
-const WAARDE_TO_API = { 15: 7.5, 17.5: 10, 20: 15 };
+/** Map flowWaarde (15|17.5|20) to API value. */
+const WAARDE_TO_API = { 15: 15, 17.5: 17.5, 20: 20 };
 
 /** Build API payload from form and DOM. Returns FormData (for file upload support). */
 function buildVoucherPayload() {
