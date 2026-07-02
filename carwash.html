@@ -1172,8 +1172,8 @@
                   >
                     <div>
                       <p class="text-[20px] md:text-lg font-semibold text-slate-900 mb-1">Barcodenummers</p>
-                      <p class="font-mono text-sm tracking-wider text-slate-900 break-all">
-                        1026733-134321 / 9297351039
+                      <p id="voucherBarcodeNumbers" class="font-mono text-sm tracking-wider text-slate-900 break-all">
+                        &nbsp;
                       </p>
                     </div>
             
@@ -1276,7 +1276,15 @@
     receiver_lastname: null,
     giver_firstname: 'Emiel',
     autowasbon_qr_url: 'https://beleving.autowasbon.nl/_assets/_style/_images/random_qr.png',
+    voucher_id: '01026733-134321',
+    autowasbon_qr_payload: '0009297351039',
   };
+
+  // Strip leading zeros for display (keeps internal digits and separators intact).
+  function stripLeadingZeros(value) {
+    if (value == null) return '';
+    return String(value).trim().replace(/^0+(?=\d)/, '');
+  }
 
   async function setupVoucher() {
     const voucherId = new URLSearchParams(window.location.search).get('voucher');
@@ -1339,6 +1347,21 @@
     if (validUntilEl && voucher.valid_until) {
       const [y, m, d] = voucher.valid_until.split('-');
       validUntilEl.textContent = `${d}-${m}-${y}`;
+    }
+
+    // Barcodenummers: voucher ID + QR scan value (leading zeros stripped).
+    const barcodeEl = document.getElementById('voucherBarcodeNumbers');
+    if (barcodeEl) {
+      const parts = [voucher.voucher_id, voucher.autowasbon_qr_payload]
+        .map(stripLeadingZeros)
+        .filter(Boolean);
+      if (parts.length) {
+        barcodeEl.textContent = parts.join(' / ');
+      } else {
+        // API doesn't (yet) return these fields — hide the Barcodenummers block.
+        console.warn('[Voucher] voucher_id / autowasbon_qr_payload ontbreken in API-response.');
+        barcodeEl.closest('div')?.classList.add('hidden');
+      }
     }
   }
 
